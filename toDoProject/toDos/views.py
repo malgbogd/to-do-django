@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.urls import reverse
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,6 +8,7 @@ from .serializers import ToDoSerializer, UserSerializer, SubtaskSerializer
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 # def main(request):
@@ -18,6 +20,9 @@ def addToDo(request):
 def loginRegister(request):
     return render(request, 'login.html')
 
+def logoutView(request):
+    logout(request)
+    return redirect('main')
 
 class ToDosListCreate(APIView):
     def get(self, request):
@@ -30,14 +35,13 @@ class ToDosListCreate(APIView):
         data = {
             'title':request.POST.get('title'),
             'text': request.POST.get('text'),
-            'image':request.FILES.get('image')
+            'image':request.FILES.get('image'),
         }
 
         serializer = ToDoSerializer(data = data)
         if serializer.is_valid():
-            to_do = serializer.save()
-            subtasks = to_do.subtasks.all()
-            return redirect(reverse('details.html',{"id":to_do.id, "todo":to_do,"subtasks":subtasks}))
+            to_do = serializer.save(author=request.user)
+            return redirect(reverse('details', kwargs = {"id":to_do.id}))
         else:
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
@@ -50,16 +54,42 @@ class ToDoDetails(APIView):
         serializerSubtask = SubtaskSerializer(subtasks, many =True)
         return render(request, 'details.html',{"todo":to_do,"subtasks":serializerSubtask.data})
     
-class UsersList(APIView):
+class UsersListCreate(APIView):
     def get(self, request):
+
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return Response({"error": "You do not have permission to perform this action"}, status=status.HTTP_403_FORBIDDEN)
+        
         users = User.objects.all()
         serializer = UserSerializer(users, many = True)
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = UserSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return render(serializer.data, 'login.html', status = status.HTTP_201_CREATED)
-        else:
-            pass
+        action = request.data.get('action')
+
+        if not action:
+            return Response({"error":"Action is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if action == 'login':
+            username =request.data.get('username')
+            password = request.data.get('password')
+
+            if not username or not password:
+                return Response({"error":"Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+            user = authenticate(request, username = username, password = password)
+
+            if user is not None:
+                login(request, user)
+                request.session['message'] = 'Successfully logged in'
+                return redirect(f'{reverse("main")}?message=Successfully%20logged%20in')
+            else:
+                return Response({"error": "Incorrect login details"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        elif action == 'register':
+            serializer = UserSerializer(data = request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return render(request, 'login.html', {"user": serializer.data}, status = status.HTTP_201_CREATED)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)

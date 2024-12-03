@@ -21,6 +21,10 @@ h1 {
     margin-bottom: 30px;
 }
 
+h2 {
+    text-align: center;
+}
+
 /* Nawigacja */
 nav {
     text-align: center;

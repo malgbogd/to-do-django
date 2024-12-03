@@ -24,9 +24,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.ToDosListCreate.as_view(), name = 'main'),
     path('<int:todo_id>', views.ToDoDetails.as_view(), name = 'details'),
-    path('users/', views.UsersList.as_view(), name = 'users'),
+    path('users/', views.UsersListCreate.as_view(), name = 'users'),
     path('add-to-do/', views.addToDo, name = 'add_to_do'),
     path('login/', views.loginRegister, name='login'),
+    path('logout/', views.logoutView, name = 'logoutView'),
     ]
 
 if settings.DEBUG:

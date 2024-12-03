@@ -19,13 +19,14 @@ class SubtaskSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     to_dos = serializers.PrimaryKeyRelatedField(many=True, queryset = ToDo.objects.all())
     
-    email = serializers.EmailField(required = False, validators = [UniqueValidator(queryset = User.objects.all(), message = ['User with that email already exist.'])])
+    email = serializers.EmailField(required = False, validators = [UniqueValidator(queryset = User.objects.all(), message = 'User with that email already exist.')])
     
     class Meta:
         model = User
         fields = ('id','username', 'email', 'password', 'to_dos')
         extra_kwargs = {'password': {
-            'write_only':True
+            'write_only':True,
+            'required' : True
         }}
 
     def create(self, validated_data):
