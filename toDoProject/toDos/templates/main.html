@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+
+{% block title%}
+All yours To Dos!
+{% endblock title%}
+
+{% block content%}
+<h3>You have {{not_complited}} task{{not_complited|pluralize}} to do!</h3>
+<br>
+{% for todo in todos%}
+
+<div class = "to-do-nav">
+    <a href = "{% url 'details' todo.id%}"><h2>{{todo.title}}</h2></a>
+        <div>
+            <button><i class="fas fa-edit"></i></button>
+            <button><i class="fas fa-trash"></i></button>
+        </div>
+    </div>
+
+<h5>{{todo.creation_date | date:"j M Y G:i"}}</h5>
+<p>{{todo.text | truncatechars:50}}</p>
+<br>
+<input type="checkbox" name ="completed" {%if todo.complition %}checked {% endif %}>
+<label for = "completed" >Completed</label>
+{% if todo.complition%}
+<h5>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+{% endif %}
+<hr>
+<br>
+{% endfor %}
+
+{% endblock content%}

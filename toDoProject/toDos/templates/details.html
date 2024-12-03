@@ -1,0 +1,59 @@
+{% extends 'base.html'%}
+
+{% block title%}
+{{todo.title}}
+{% endblock title%}
+
+{% block content %}
+<div class = "to-do-nav">
+<h2>{{todo.title}}</h2>
+    <div>
+        <button><i class="fas fa-edit"></i></button>
+        <button><i class="fas fa-trash"></i></button>
+    </div>
+</div>
+<br>
+<h5>Created: {{todo.creation_date | date:"j M Y G:i"}}</h5>
+
+<p>{{todo.text}}</p>
+
+<input type="checkbox" name ="completed" {%if todo.complition %}checked {% endif %}>
+<label for = "completed" >Completed</label>
+
+{% if todo.complition %}
+<h5>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+<br><br>
+{% endif %}
+
+{% if subtasks%}
+<br><br>
+<h3>Subtasks:</h3>
+<hr>
+<br>
+    {% for subtask in subtasks %}
+            <h4>{{subtask.title}}</h4>
+            <p>{{subtask.text}}</p>
+            <input type="checkbox" name ="completed" {%if subtask.complition %}checked {% endif %}>
+            <label for = "completed">Completed</label>
+            <hr>
+            <br>
+    {% endfor %}
+{% endif%}
+
+{% if todo.image %}
+<img src="{{todo.image.url}}" alt = "todo image">
+<br>
+{% endif %}
+
+<h2>Add subtask:</h2>
+<form method="post">
+    <label for="title">Title:</label>
+        <input type="text" id="title" name="title" placeholder="Title" required>
+
+        <label for="text">Description:</label>
+        <textarea id="text" name="text" rows="4" placeholder="Description"></textarea>
+
+        <button type = 'submit'>Add</button>
+</form>
+
+{%endblock content%}

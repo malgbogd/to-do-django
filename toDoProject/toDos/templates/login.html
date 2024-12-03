@@ -1,0 +1,23 @@
+{% extends 'base.html'%}
+
+{% block title%}
+All yours To Dos!
+{% endblock title%}
+
+{% block content%}
+<h2>Login or Register</h2>
+<form method="post">
+    {% csrf_token %}
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" required>
+    
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+    
+    <div class="button-group">
+        <button type="submit" name="action" value="login" class="login-btn">Login</button>
+        <button type="submit" name="action" value="register" class="register-btn">Register</button>
+    </div>
+</form>
+
+{% endblock content%}
