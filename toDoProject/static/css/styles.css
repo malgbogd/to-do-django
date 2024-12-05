@@ -4,16 +4,13 @@
     box-sizing: border-box;
 }
 
-/* Globalne style */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
     color: #333;
-    line-height: 1.6;
     padding: 20px;
 }
 
-/* Nagłówek */
 h1 {
     font-size: 2.5rem;
     color: #2c3e50;
@@ -25,7 +22,6 @@ h2 {
     text-align: center;
 }
 
-/* Nawigacja */
 nav {
     text-align: center;
     margin-bottom: 40px;
@@ -39,7 +35,6 @@ nav form {
 nav button {
     background-color: #3498db;
     color: white;
-    /* padding: 10px 20px; */
     font-size: 1rem;
     border: none;
     border-radius: 5px;
@@ -55,7 +50,6 @@ nav form {
     padding: 0;
 }
 
-/* Główna treść */
 main {
     max-width: 900px;
     margin: 0 auto;
@@ -65,7 +59,6 @@ main {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Stopka */
 footer {
     text-align: center;
     margin-top: 50px;
@@ -73,7 +66,6 @@ footer {
     color: #777;
 }
 
-/* Linki i inne elementy tekstowe */
 a {
     color: #3498db;
     text-decoration: none;
@@ -119,10 +111,6 @@ form label {
     color: #555;
     margin-bottom: 8px;
     display: block;
-}
-
-form.small-button button{
-    all:unset
 }
 
 form input,
@@ -239,4 +227,16 @@ img{
 .small-button:hover {
     background-color: #2980b9;
     transform: scale(1.1); 
+}
+
+.completed-div {
+    width: 100%;
+    display: flex;
+    flex-direction:row;
+}
+
+.completed-div input {
+    width: auto;
+    line-height: 1;
+    margin-right: 4px;
 }

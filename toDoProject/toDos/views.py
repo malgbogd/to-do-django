@@ -28,6 +28,23 @@ def logoutView(request):
     logout(request)
     return redirect('main')
 
+def saveEditedToDo(request, todo_id):
+    to_do = get_object_or_404(ToDo, id = todo_id)
+
+    to_do.title = request.POST.get('title')
+    to_do.text = request.POST.get('text')
+
+    if 'image' in request.FILES:
+        to_do.image=request.FILES.get('image')
+
+    to_do.save()
+
+    return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
+
+def editToDO(request, todo_id):
+    to_do =get_object_or_404(ToDo, id = todo_id)
+    return render(request, 'edit.html' ,{"todo": to_do})
+
 class ToDosListCreate(APIView):
     def get(self, request):
         print(f"User logged in: {request.user.is_authenticated}")

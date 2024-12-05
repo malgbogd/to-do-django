@@ -8,7 +8,7 @@
 <div class = "to-do-nav">
 <h2>{{todo.title}}</h2>
     <div class = "to-do-nav">
-            <button class = "small-button" ><i class="fas fa-edit"></i></button>
+        <button class = "edit-button small-button" data-id = "{{ todo.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
         {% csrf_token %}
         <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect="{% url 'main' %}"><i class="fas fa-trash"></i></button>
     </div>

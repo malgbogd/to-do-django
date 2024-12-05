@@ -29,6 +29,8 @@ urlpatterns = [
     path('login/', views.loginRegister, name='login'),
     path('logout/', views.logoutView, name = 'logoutView'),
     path('delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
+    path('edit/<int:todo_id>/' , views.editToDO, name = 'edit'),
+    path('save-edit/<int:todo_id>/', views.saveEditedToDo, name = 'save-edits')
     ]
 
 if settings.DEBUG:

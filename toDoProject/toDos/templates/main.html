@@ -13,9 +13,10 @@ All yours To Dos!
     <div class = "to-do-nav">
         <a href = "{% url 'details' todo.id %}"><h2>{{todo.title}}</h2></a>
             <div class = "to-do-nav">
-                    <button class = "small-button"><i class="fas fa-edit"></i></button>
-                    {% csrf_token %}
-                    <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect=""><i class="fas fa-trash"></i></button>
+                {% csrf_token %}
+                <button class = "edit-button small-button" data-id = "{{ todo.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
+                {% csrf_token %}
+                <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect=""><i class="fas fa-trash"></i></button>
             </div>
         </div>
 
