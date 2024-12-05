@@ -7,9 +7,10 @@
 {% block content %}
 <div class = "to-do-nav">
 <h2>{{todo.title}}</h2>
-    <div>
-        <button><i class="fas fa-edit"></i></button>
-        <button><i class="fas fa-trash"></i></button>
+    <div class = "to-do-nav">
+            <button class = "small-button" ><i class="fas fa-edit"></i></button>
+        {% csrf_token %}
+        <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect="{% url 'main' %}"><i class="fas fa-trash"></i></button>
     </div>
 </div>
 <br>

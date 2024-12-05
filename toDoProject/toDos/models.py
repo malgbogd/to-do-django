@@ -12,8 +12,7 @@ class ToDo(models.Model):
     complition = models.BooleanField(default=False)
     complition_date = models.DateTimeField(blank = True, null=True)
     image = models.ImageField(upload_to='images/', blank ='True', null=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'to_dos')
-
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'to_dos', blank ='True', null=True)
     def __str__(self):
         return f'{self.title} | {self.creation_date}'
 

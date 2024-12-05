@@ -24,6 +24,7 @@ h1 {
 h2 {
     text-align: center;
 }
+
 /* Nawigacja */
 nav {
     text-align: center;
@@ -120,6 +121,10 @@ form label {
     display: block;
 }
 
+form.small-button button{
+    all:unset
+}
+
 form input,
 form textarea {
     width: 100%;
@@ -151,7 +156,6 @@ form button:hover {
     background-color: #2980b9;
 }
 
-/* Style dla formularza logowania/rejestracji */
 .button-group {
     display: flex;
     justify-content: space-between;
@@ -205,24 +209,10 @@ form button:hover {
     }
 }
 
-.to-do-nav button {
-    background-color: #3498db;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
 
 .to-do-nav button:hover {
     background-color: salmon;
 }
-
-button i {
-    color: white;
-    font-size: 20px; /* Zmiana rozmiaru ikony */
-    margin: 4px;
-}
-
 
 .to-do-nav{
     display: flex;
@@ -234,4 +224,19 @@ button i {
 img{
     margin-bottom: 2%;
     border-radius: 40px;
+}
+
+/* .small-button {
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.small-button i {
+        color: white;
+        font-size: 20px;
+        margin: 4px; */
+    
 }
