@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {    
+document.addEventListener('DOMContentLoaded', function () {  
+    const currentUrl = window.location.pathname;
+    
     document.querySelectorAll('.delete-button').forEach(
         button => {
             button.addEventListener('click', function () {
@@ -38,4 +40,43 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.href = editUrl;
         });
     });
+
+    document.querySelectorAll('.todo-comlition').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            const todoId = this.getAttribute('data-id');
+            const complitionTime = document.getElementById(`complition-date-${todoId}`);
+
+            fetch(`/check-box-edit/${todoId}/`, {
+                method : 'post',
+                headers : {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    if (data.complition) {
+                        complitionTime.textContent = data.complition_date;
+                        complitionTime.hidden = false;
+                    } 
+                    else {
+                        complitionTime.hidden = true;
+                    }
+                } else {
+                    console.error('Error:', data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+            if (currentUrl.includes('edit')) {
+                checkbox.disabled = false;
+            } else if (checkbox.checked) {
+                checkbox.disabled = true;
+            }
+        });
+        
+    });
+
+
 });

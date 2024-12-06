@@ -12,9 +12,10 @@ Create Your To Dos!
         <input type="text" id="title" name="title" placeholder="Title" required value = "{{todo.title}}">
         
         <div class = "completed-div">
-            <input type="checkbox" name ="completed" {%if todo.complition %}checked {% endif %}>
+            <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.complition %}checked {% endif %} data-id="{{todo.id}}">
             <label for = "completed" >Completed</label>
         </div>
+        <h5 id="complition-date-{{todo.id}}" {% if not todo.complition%} hidden {% endif %}>{{todo.complition_date | date:"j M Y G:i"}}</h5>
 
         <label for="text">Description:</label>
         <textarea id="text" name="text" rows="4" placeholder="Description" required>{{todo.text}}</textarea>

@@ -18,13 +18,11 @@
 
 <p>{{todo.text}}</p>
 
-<input type="checkbox" name ="completed" {%if todo.complition %}checked {% endif %}>
+<input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.complition %}checked disabled {% endif %} data-id = "{{ todo.id }}">
 <label for = "completed" >Completed</label>
 
-{% if todo.complition %}
-<h5>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+<h5 id = "complition-date-{{todo.id}}" {% if not todo.complition%} hidden {% endif %}>{{todo.complition_date | date:"j M Y G:i"}}</h5>
 <br><br>
-{% endif %}
 
 {% if subtasks%}
 <br><br>

@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.utils.deprecation import MiddlewareMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.utils import timezone
 from .models import ToDo, SubToDo
 from .serializers import ToDoSerializer, UserSerializer, SubtaskSerializer
 from rest_framework import status
@@ -24,7 +25,7 @@ def addToDo(request):
 def loginRegister(request):
     return render(request, 'login.html')
 
-def logoutView(request):
+def logout_view(request):
     logout(request)
     return redirect('main')
 
@@ -44,6 +45,26 @@ def saveEditedToDo(request, todo_id):
 def editToDO(request, todo_id):
     to_do =get_object_or_404(ToDo, id = todo_id)
     return render(request, 'edit.html' ,{"todo": to_do})
+
+def checkbox_edit(request, todo_id):
+    if request.method == "POST":
+        to_do =get_object_or_404(ToDo, id=todo_id)
+
+        to_do.complition = not to_do.complition
+
+        if to_do.complition:
+            to_do.complition_date = timezone.now()
+        else:
+            to_do.complition_date = None
+    
+        to_do.save()
+        print(to_do.complition_date)
+        return JsonResponse({
+            'status':'success',
+            'complition': to_do.complition,
+            'complition_date': to_do.complition_date.strftime('%d %b %Y %H:%M') if to_do.complition else None,
+        })
+    return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
 
 class ToDosListCreate(APIView):
     def get(self, request):

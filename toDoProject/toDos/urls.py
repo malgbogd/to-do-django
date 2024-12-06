@@ -27,10 +27,11 @@ urlpatterns = [
     path('users/', views.UsersListCreate.as_view(), name = 'users'),
     path('add-to-do/', views.addToDo, name = 'add_to_do'),
     path('login/', views.loginRegister, name='login'),
-    path('logout/', views.logoutView, name = 'logoutView'),
+    path('logout/', views.logout_view, name = 'logout_view'),
     path('delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
     path('edit/<int:todo_id>/' , views.editToDO, name = 'edit'),
-    path('save-edit/<int:todo_id>/', views.saveEditedToDo, name = 'save-edits')
+    path('save-edit/<int:todo_id>/', views.saveEditedToDo, name = 'save-edits'),
+    path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check-box-edit'),
     ]
 
 if settings.DEBUG:

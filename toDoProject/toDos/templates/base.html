@@ -19,7 +19,7 @@
         <form action="{% url 'add_to_do'%}" method="GET"><button type="submit">Create new to do</button></form>
         {% if user.is_authenticated %}
         <form><button type="submit">Profile</button></form>
-        <form action = "{% url 'logoutView'%}" method="post">
+        <form action = "{% url 'logout_view'%}" method="post">
             {% csrf_token%}
             <button type="submit">Logout</button>
         </form>

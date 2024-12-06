@@ -23,11 +23,11 @@ All yours To Dos!
     <h5>{{todo.creation_date | date:"j M Y G:i"}}</h5>
     <p>{{todo.text | truncatechars:50}}</p>
     <br>
-    <input type="checkbox" name ="completed" {%if todo.complition %}checked {% endif %}>
+    <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.complition %}checked disabled {% endif %} data-id="{{todo.id}}">
     <label for = "completed" >Completed</label>
-    {% if todo.complition%}
-    <h5>{{todo.complition_date | date:"j M Y G:i"}}</h5>
-    {% endif %}
+
+    <h5 id = "complition-date-{{todo.id}}" {% if not todo.complition%} hidden {% endif %}>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+    
     <hr>
     <br>
 </div>
