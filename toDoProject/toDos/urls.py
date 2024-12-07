@@ -32,6 +32,8 @@ urlpatterns = [
     path('edit/<int:todo_id>/' , views.editToDO, name = 'edit'),
     path('save-edit/<int:todo_id>/', views.saveEditedToDo, name = 'save-edits'),
     path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check-box-edit'),
+    path('profile/', views.ProfileViewUpdate.as_view(), name = 'profile'),
+    path('add-subtask/<int:todo_id>/', views.add_subtask, name='add_subtask'),
     ]
 
 if settings.DEBUG:

@@ -12,9 +12,11 @@ class ToDoSerializer(serializers.ModelSerializer):
         fields = ('id','title', 'text','creation_date','complition','complition_date','image','subtasks')
 
 class SubtaskSerializer(serializers.ModelSerializer):
+    to_do = serializers.PrimaryKeyRelatedField(queryset=ToDo.objects.all())
+    
     class Meta:
         model = SubToDo
-        fields = ('id','title','text','complition')
+        fields = ('id','to_do','title','text','complition')
 
 class UserSerializer(serializers.ModelSerializer):
     to_dos = serializers.PrimaryKeyRelatedField(many=True, queryset = ToDo.objects.all())

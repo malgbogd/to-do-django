@@ -1,0 +1,24 @@
+{% extends 'base.html'%}
+
+{% block title%}
+{{user.username}}
+{% endblock title%}
+
+{% block content %}
+<h2>Hello {{user.username}}!</h2>
+<form action="{% url 'profile'%}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Username" value = "{{user.username}}">
+
+        <label for="new-password">New password:</label>
+        <input type ="new-password" id="new-password" name="new-password" placeholder="New password" >
+        <label for="new-password-check">Repeat new password:</label>
+        <input type ="password-check" id="password-check" name="password-check" placeholder="Repeat new password" >
+        <div class="button-group">
+            <button type = 'submit'>Update profile</button>
+            <button id="delete-profile">Delete profile</button>
+        </div>
+</form>
+
+{%endblock content%}

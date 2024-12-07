@@ -66,6 +66,40 @@ def checkbox_edit(request, todo_id):
         })
     return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
 
+def add_subtask(request, todo_id):
+    print("Metoda żądania:", request.method)
+    print("Otrzymane dane:", request.POST)
+
+    if request.method == 'POST':
+        to_do = get_object_or_404(ToDo, id = todo_id)
+
+        data = {
+            'to_do': to_do.id,
+            'title':request.POST.get('title'),
+            'text': request.POST.get('text'),
+            'complition': False
+        }
+        serializer = SubtaskSerializer(data = data)
+        if serializer.is_valid():
+            subtask = serializer.save()
+            return JsonResponse({
+                "status":"success",
+                "subtask": {
+                    "id": subtask.id,
+                    "title":subtask.title,
+                    "text":subtask.text,
+                    "to_do":subtask.to_do.id,
+                    "complition":subtask.complition,
+                }
+            })
+        else:
+            return JsonResponse({"status":"error", "errors":serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
+    return JsonResponse({"status":"error", "message":"Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileViewUpdate(APIView):
+    def get(self, request):
+        return render(request, 'profile.html')
+
 class ToDosListCreate(APIView):
     def get(self, request):
         print(f"User logged in: {request.user.is_authenticated}")

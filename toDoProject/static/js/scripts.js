@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {  
     const currentUrl = window.location.pathname;
+    const subtaskForm = document.getElementById("subtask-form");
+    const subtaskList = document.getElementById("subtasks-list");
+    const subtaskContainer = document.getElementById("subtasks-container");
     
     document.querySelectorAll('.delete-button').forEach(
         button => {
@@ -78,5 +81,58 @@ document.addEventListener('DOMContentLoaded', function () {
         
     });
 
+    subtaskForm.addEventListener('submit', function (e){
+        e.preventDefault();
+
+        const formData = new FormData(subtaskForm);
+        const url = subtaskForm.getAttribute('data-url');
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status==="success") {
+                const subtask = data.subtask;
+                const subtaskItem = `
+                <div id="subtask-${subtask.id}">
+                    <div class = "to-do-nav">
+                        <h4>${subtask.title}</h4>
+                        <div class = "to-do-nav">
+                        <button class = "small-subtask-button" data-id = "${subtask.id}" data-url = "/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
+                        <button class = "small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <p>${subtask.text}</p>
+                    <input type="checkbox" name ="completed" ${subtask.complition ? 'checked' :""}>
+                    <label for = "completed">Completed</label>
+                    <hr>
+                    <br>
+                </div>
+                `;
+
+                subtaskList.insertAdjacentHTML('beforeend', subtaskItem);
+                subtaskContainer.hidden = false;
+                subtaskForm.reset();
+
+
+
+
+            } else {
+                console.error('Error', data.errors);
+                alert("Error adding subtask!");
+            }
+        })
+        .catch(error => {
+        console.error("error",error);
+        alert("Something went wrong")
+    })
+
+    })
+    
 
 });

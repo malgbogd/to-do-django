@@ -8,7 +8,6 @@ body {
     font-family: 'Arial', sans-serif;
     background-color: #f4f4f9;
     color: #333;
-    line-height: 1.6;
     padding: 20px;
 }
 
@@ -21,6 +20,7 @@ h1 {
 
 h2 {
     text-align: center;
+    margin-bottom: 10px;
 }
 
 nav {
@@ -206,6 +206,9 @@ form button:hover {
 }   
 
 img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
     margin-bottom: 2%;
     border-radius: 40px;
 }
@@ -231,8 +234,42 @@ img{
 }
 
 .completed-div {
+    width: 100%;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: start;
+    flex-direction:row;
+}
+
+.completed-div input {
+    width: auto;
+    line-height: 1;
+    margin-right: 4px;
+}
+
+#delete-profile {
+    background-color: #fa8072;
+}
+
+#delete-profile:hover {
+    background-color: #ec6c5b;
+}
+
+
+.small-subtask-button {
+    background-color: darkgray;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 2px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.small-subtask-button i {
+    color: white;
+    font-size: 15px;
+    margin: 3px;
+}
+
+.small-subtask-button:hover {
+    background-color: gray;
+    transform: scale(1.1); 
 }
