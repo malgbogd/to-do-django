@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status == 'success') {
+                    if (data.status === 'success') {
                         const todoElement = document.getElementById(`todo-${todoId}`);
 
                         if (todoElement) {
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <h4>${subtask.title}</h4>
                         <div class = "to-do-nav">
                         <button class = "small-subtask-button" data-id = "${subtask.id}" data-url = "/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
-                        <button class = "small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
+                        <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <p>${subtask.text}</p>
@@ -133,6 +133,28 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     })
-    
 
+    document.querySelectorAll('.delete-subtask').forEach(
+        button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault()
+            subtaskId = this.getAttribute("data-id");
+
+            fetch(`/dedelete-subtask/${subtaskId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                document.getElementById(`subtask-${subtaskId}`).remove()
+                }
+            })
+            .catch(error => console.log("Error:", error));
+            });
+        }
+    );
 });

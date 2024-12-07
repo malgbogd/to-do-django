@@ -96,6 +96,11 @@ def add_subtask(request, todo_id):
             return JsonResponse({"status":"error", "errors":serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
     return JsonResponse({"status":"error", "message":"Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
 
+def delete_subtask(request,subtask_id):
+    subtask = get_object_or_404(SubToDo, id = subtask_id)
+    subtask.delete()
+    return JsonResponse({"status":"success"})
+
 class ProfileViewUpdate(APIView):
     def get(self, request):
         return render(request, 'profile.html')

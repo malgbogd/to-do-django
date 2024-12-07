@@ -1,3 +1,30 @@
+function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
+    button.addEventListener('click', function(e) {
+        e.preventDefault()
+    subtaskId = this.getAttribute("data-id");
+
+    fetch(`/delete-subtask/${subtaskId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+        document.getElementById(`subtask-${subtaskId}`).remove()
+        
+        if (subtaskList.children.length===0){
+            subtaskContainer.hidden = true;
+        }
+
+        }
+    })
+    .catch(error => console.log("Error:", error));
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {  
     const currentUrl = window.location.pathname;
     const subtaskForm = document.getElementById("subtask-form");
@@ -21,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status == 'success') {
+                    if (data.status === 'success') {
                         const todoElement = document.getElementById(`todo-${todoId}`);
 
                         if (todoElement) {
@@ -104,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <h4>${subtask.title}</h4>
                         <div class = "to-do-nav">
                         <button class = "small-subtask-button" data-id = "${subtask.id}" data-url = "/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
-                        <button class = "small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
+                        <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <p>${subtask.text}</p>
@@ -119,8 +146,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 subtaskContainer.hidden = false;
                 subtaskForm.reset();
 
-
-
+                const deleteButton = document.querySelector(`#subtask-${subtask.id} .delete-subtask-btn`);
+                addSubtaskDeleteEvent(deleteButton, subtaskList, subtaskContainer);
 
             } else {
                 console.error('Error', data.errors);
@@ -133,6 +160,8 @@ document.addEventListener('DOMContentLoaded', function () {
     })
 
     })
-    
 
+    document.querySelectorAll('.delete-subtask-btn').forEach(
+        button => addSubtaskDeleteEvent(button, subtaskList, subtaskContainer)
+    );
 });
