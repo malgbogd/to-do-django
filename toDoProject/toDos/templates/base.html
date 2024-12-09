@@ -24,7 +24,8 @@
             <button type="submit">Logout</button>
         </form>
         {% else %}
-        <form action="{% url 'login'%}" method="GET"><button type="submit">Login/Register</button></form>
+        <form action="{% url 'login'%}" method="GET"><button type="submit">Login</button></form>
+        <form action="{% url 'register'%}" method="GET"><button type="submit">Register</button></form>
         {% endif %}
     </nav>
     <main>

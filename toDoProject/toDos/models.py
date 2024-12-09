@@ -9,8 +9,8 @@ class ToDo(models.Model):
     title = models.CharField(max_length=250)
     text = models.TextField()
     creation_date = models.DateTimeField(auto_now_add=True)
-    complition = models.BooleanField(default=False)
-    complition_date = models.DateTimeField(blank = True, null=True)
+    completion = models.BooleanField(default=False)
+    completion_date = models.DateTimeField(blank = True, null=True)
     image = models.ImageField(upload_to='images/', blank ='True', null=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name= 'to_dos', blank ='True', null=True)
     def __str__(self):
@@ -20,7 +20,7 @@ class SubToDo(models.Model):
     to_do = models.ForeignKey(ToDo, on_delete=models.CASCADE, related_name='subtasks')
     title = models.CharField(max_length=250)
     text = models.TextField(max_length=450)
-    complition = models.BooleanField(default=False)
+    completion = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.title} - subtask for {self.to_do}'

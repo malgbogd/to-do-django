@@ -22,19 +22,22 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.ToDosListCreate.as_view(), name = 'main'),
-    path('<int:todo_id>', views.ToDoDetails.as_view(), name = 'details'),
+    path('', views.todo_list, name = 'main'),
+    path('details/<int:todo_id>', views.ToDoDetails.as_view(), name = 'details'),
     path('users/', views.UsersListCreate.as_view(), name = 'users'),
-    path('add-to-do/', views.addToDo, name = 'add_to_do'),
-    path('login/', views.loginRegister, name='login'),
+    path('add-to-do/', views.add_todo, name = 'add_to_do'),
+    path('create-todo', views.create_todo, name = 'create_todo'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name = 'logout_view'),
     path('delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
-    path('edit/<int:todo_id>/' , views.editToDO, name = 'edit'),
-    path('save-edit/<int:todo_id>/', views.saveEditedToDo, name = 'save-edits'),
-    path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check-box-edit'),
-    path('profile/', views.ProfileViewUpdate.as_view(), name = 'profile'),
+    path('edit/<int:todo_id>/' , views.edit_todo, name = 'edit'),
+    path('save-edit/<int:todo_id>/', views.save_edited_todo, name = 'save_edits'),
+    path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check_box_edit'),
+    path('profile/', views.profile_view_update, name = 'profile'),
     path('add-subtask/<int:todo_id>/', views.add_subtask, name='add_subtask'),
-    path('delete-subtask/<int:subtask_id>', views.delete_subtask, name = "delete_subtask")
+    path('delete-subtask/<int:subtask_id>', views.delete_subtask, name = "delete_subtask"),
+    path('update-subtask/<int:subtask_id>', views.update_subtask, name = "update_subtask")
     ]
 
 if settings.DEBUG:

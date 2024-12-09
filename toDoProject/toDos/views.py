@@ -3,8 +3,6 @@ from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from django.utils.deprecation import MiddlewareMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.utils import timezone
 from .models import ToDo, SubToDo
@@ -15,21 +13,33 @@ from rest_framework.views import APIView
 from pyexpat.errors import messages
 
 # Create your views here.
-# def main(request):
-#     to_dos = ToDo.objects.all()
-#     return render (request, 'main.html',{"todos":to_dos})
-def addToDo(request):
+
+def todo_list(request):
+
+    if request.user.is_authenticated:
+        to_dos = ToDo.objects.filter(author=request.user)
+
+    else: 
+        to_dos = ToDo.objects.filter(author=None)
+    
+    not_completed = to_dos.filter(completion=False).count()
+    return render (request, 'main.html',{"todos":to_dos, 'not_completed':not_completed })
+
+def add_todo(request):
     print(f"User logged in: {request.user.is_authenticated}")
     return render(request, 'create.html')
 
-def loginRegister(request):
+def login_view(request):
     return render(request, 'login.html')
+
+def register_view(request):
+    return render(request, 'register.html')
 
 def logout_view(request):
     logout(request)
     return redirect('main')
 
-def saveEditedToDo(request, todo_id):
+def save_edited_todo(request, todo_id):
     to_do = get_object_or_404(ToDo, id = todo_id)
 
     to_do.title = request.POST.get('title')
@@ -42,7 +52,7 @@ def saveEditedToDo(request, todo_id):
 
     return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
 
-def editToDO(request, todo_id):
+def edit_todo(request, todo_id):
     to_do =get_object_or_404(ToDo, id = todo_id)
     return render(request, 'edit.html' ,{"todo": to_do})
 
@@ -50,19 +60,19 @@ def checkbox_edit(request, todo_id):
     if request.method == "POST":
         to_do =get_object_or_404(ToDo, id=todo_id)
 
-        to_do.complition = not to_do.complition
+        to_do.completion = not to_do.completion
 
-        if to_do.complition:
-            to_do.complition_date = timezone.now()
+        if to_do.completion:
+            to_do.completion_date = timezone.now()
         else:
-            to_do.complition_date = None
+            to_do.completion_date = None
     
         to_do.save()
-        print(to_do.complition_date)
+        print(to_do.completion_date)
         return JsonResponse({
             'status':'success',
-            'complition': to_do.complition,
-            'complition_date': to_do.complition_date.strftime('%d %b %Y %H:%M') if to_do.complition else None,
+            'completion': to_do.completion,
+            'completion_date': to_do.completion_date.strftime('%d %b %Y %H:%M') if to_do.completion else None,
         })
     return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
 
@@ -77,7 +87,7 @@ def add_subtask(request, todo_id):
             'to_do': to_do.id,
             'title':request.POST.get('title'),
             'text': request.POST.get('text'),
-            'complition': False
+            'completion': False
         }
         serializer = SubtaskSerializer(data = data)
         if serializer.is_valid():
@@ -89,38 +99,46 @@ def add_subtask(request, todo_id):
                     "title":subtask.title,
                     "text":subtask.text,
                     "to_do":subtask.to_do.id,
-                    "complition":subtask.complition,
+                    "completion":subtask.completion,
                 }
             })
         else:
             return JsonResponse({"status":"error", "errors":serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
     return JsonResponse({"status":"error", "message":"Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
 
-def delete_subtask(request,subtask_id):
+def update_subtask(request, subtask_id):
+    subtask = get_object_or_404(SubToDo, id=subtask_id)
+    title = request.POST.get('title')
+    text = request.POST.get('text')
+
+    if not title or not text:
+        return JsonResponse({"status": "error", "message": "Title and text are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    subtask.title = title
+    subtask.text = text
+
+    subtask.save()
+    
+    return JsonResponse({
+                "status":"success",
+                "subtask": {
+                    "id": subtask.id,
+                    "title":subtask.title,
+                    "text":subtask.text,
+                    "to_do":subtask.to_do.id,
+                    "completion":subtask.completion,
+                }
+            }, status = status.HTTP_200_OK)
+
+def delete_subtask(request, subtask_id):
     subtask = get_object_or_404(SubToDo, id = subtask_id)
     subtask.delete()
     return JsonResponse({"status":"success"})
 
-class ProfileViewUpdate(APIView):
-    def get(self, request):
-        return render(request, 'profile.html')
+def profile_view_update(request):
+    return render(request, 'profile.html')
 
-class ToDosListCreate(APIView):
-    def get(self, request):
-        print(f"User logged in: {request.user.is_authenticated}")
-
-        to_dos = ToDo.objects.filter()
-
-        # if request.user.is_authenticated:
-        #     to_dos = ToDo.objects.filter(author=request.user)
-
-        # else: 
-        #     to_dos = ToDo.objects.filter(author=None)
-        
-        not_complited = ToDo.objects.filter(complition=False).count()
-        return render (request, 'main.html',{"todos":to_dos, 'not_complited':not_complited })
-
-    def post(self, request):
+def create_todo(request):
         data = {
             'title':request.POST.get('title'),
             'text': request.POST.get('text'),
@@ -135,7 +153,7 @@ class ToDosListCreate(APIView):
             to_do = serializer.save()
             return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
         else:
-            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
 
 class ToDoDetails(APIView):
     def get(self, request, todo_id):
@@ -174,23 +192,22 @@ class UsersListCreate(APIView):
             return Response({"error":"Action is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         if action == 'login':
-            username =request.POST.get('username')
-            password = request.POST.get('password')
-            user = authenticate(request, username = username, password = password)
+            username =request.data.get('username')
+            password = request.data.get('password')
 
             if not username or not password:
                 return Response({"error":"Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-            
+            user = authenticate(request, username = username, password = password)
 
             if user is not None:
                 login(request, user)
                 request.session['message'] = 'Successfully logged in'
 
                 to_dos = ToDo.objects.filter(author=None)
-
                 for to_do in to_dos:
-                    to_do["author"] = request.user
+                    to_do.author= request.user
+                    to_do.save()
 
                 return redirect(reverse("main"))
             else:
@@ -203,4 +220,3 @@ class UsersListCreate(APIView):
                 return render(request, 'login.html', {"user": serializer.data}, status = status.HTTP_201_CREATED)
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
-

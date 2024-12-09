@@ -7,7 +7,7 @@ Create Your To Dos!
 {% block content %}
 <h2>Create Your To Do!</h2>
 <p>In details view you will be able to add subtasks</p>
-<form action="{% url 'main'%}" method="post" enctype="multipart/form-data">
+<form action="{% url 'create_todo'%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="title">Title:</label>
         <input type="text" id="title" name="title" placeholder="Title" required>

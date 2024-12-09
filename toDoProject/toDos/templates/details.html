@@ -17,10 +17,10 @@
 
 <p>{{todo.text}}</p>
 
-<input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.complition %}checked disabled {% endif %} data-id = "{{ todo.id }}">
+<input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.completion %}checked disabled {% endif %} data-id = "{{ todo.id }}">
 <label for = "completed" >Completed</label>
 
-<h5 id = "complition-date-{{todo.id}}" {% if not todo.complition%} hidden {% endif %}>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+<h5 id = "completion-date-{{todo.id}}" {% if not todo.completion%} hidden {% endif %}>{{todo.completion_date | date:"j M Y G:i"}}</h5>
 <br><br>
 
 {% if todo.image %}
@@ -41,14 +41,14 @@
                     <div class = "to-do-nav">
                         <h4>{{subtask.title}}</h4>
                         <div class = "to-do-nav">
-                        <button class = "small-subtask-button" data-id = "{{ subtask.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
-                        <button class = "delete-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}"><i class="fas fa-trash"></i></button>
+                            <button class = "edit-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
+                            <button class = "delete-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <p>{{subtask.text}}</p>
                     <br>
-                    <input type="checkbox" name ="completed" {%if subtask.complition %}checked {% endif %}>
-                    <label for = "completed">Completed</label>
+                    <input type="checkbox" name ="completion" {%if subtask.completion %}checked {% endif %}>
+                    <label for = "completion">Completed</label>
                     <hr>
                     <br>
                 </div>
@@ -57,18 +57,18 @@
     </div>
 </div>
 
+<div id="form-container">
+    <h2 id="form">Add subtask:</h2>
+    <form data-url="{% url 'add_subtask' todo.id %}" method="post" id="subtask-form">
+        {% csrf_token %}
+        <label for="title">Title:</label>
 
-<h2>Add subtask:</h2>
-<form data-url="{% url 'add_subtask' todo.id %}" method="post" id="subtask-form">
-    {% csrf_token %}
-    <label for="title">Title:</label>
+            <input type="text" id="title" name="title" placeholder="Title" required>
 
-        <input type="text" id="title" name="title" placeholder="Title" required>
+            <label for="text">Description:</label>
+            <textarea id="text" name="text" rows="4" placeholder="Description"></textarea>
 
-        <label for="text">Description:</label>
-        <textarea id="text" name="text" rows="4" placeholder="Description"></textarea>
-
-        <button type = 'submit'>Add</button>
-</form>
-
+            <button type = 'submit'>Add</button>
+    </form>
+</div>
 {%endblock content%}

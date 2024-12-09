@@ -1,13 +1,13 @@
-{% extends 'base.html'%}
+{% extends 'base.html' %}
 
-{% block title%}
+{% block title %}
 All yours To Dos!
-{% endblock title%}
+{% endblock title %}
 
-{% block content%}
-<h3>You have {{not_complited}} task{{not_complited|pluralize}} to do!</h3>
+{% block content %}
+<h3>You have {{not_completed}} task{{not_completed|pluralize}} to do!</h3>
 <br>
-{% for todo in todos%}
+{% for todo in todos %}
 
 <div id="todo-{{ todo.id }}">
     <div class = "to-do-nav">
@@ -23,10 +23,10 @@ All yours To Dos!
     <h5>{{todo.creation_date | date:"j M Y G:i"}}</h5>
     <p>{{todo.text | truncatechars:50}}</p>
     <br>
-    <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.complition %}checked disabled {% endif %} data-id="{{todo.id}}">
+    <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.completion %}checked disabled {% endif %} data-id="{{todo.id}}">
     <label for = "completed" >Completed</label>
 
-    <h5 id = "complition-date-{{todo.id}}" {% if not todo.complition%} hidden {% endif %}>{{todo.complition_date | date:"j M Y G:i"}}</h5>
+    <h5 id = "completion-date-{{todo.id}}" {% if not todo.completion%} hidden {% endif %}>{{todo.completion_date | date:"j M Y G:i"}}</h5>
     
     <hr>
     <br>
