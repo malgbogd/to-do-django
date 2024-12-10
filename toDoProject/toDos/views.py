@@ -87,7 +87,7 @@ def add_subtask(request, todo_id):
             'to_do': to_do.id,
             'title':request.POST.get('title'),
             'text': request.POST.get('text'),
-            'completion': False
+            'completion': False,
         }
         serializer = SubtaskSerializer(data = data)
         if serializer.is_valid():
@@ -110,13 +110,32 @@ def update_subtask(request, subtask_id):
     subtask = get_object_or_404(SubToDo, id=subtask_id)
     title = request.POST.get('title')
     text = request.POST.get('text')
+    completion = request.POST.get('completion', False)
+    completion = True if completion=="on" else False
 
     if not title or not text:
         return JsonResponse({"status": "error", "message": "Title and text are required."}, status=status.HTTP_400_BAD_REQUEST)
 
     subtask.title = title
     subtask.text = text
+    subtask.completion = completion
 
+    subtask.save()
+    
+    return JsonResponse({
+                "status":"success",
+                "subtask": {
+                    "id": subtask.id,
+                    "title":subtask.title,
+                    "text":subtask.text,
+                    "to_do":subtask.to_do.id,
+                    "completion":subtask.completion,
+                }
+            }, status = status.HTTP_200_OK)
+
+def update_subtask_completion(request, subtask_id):
+    subtask = get_object_or_404(SubToDo, id=subtask_id)
+    subtask.completion = not subtask.completion
     subtask.save()
     
     return JsonResponse({

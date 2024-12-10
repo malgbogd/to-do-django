@@ -47,7 +47,7 @@
                     </div>
                     <p>{{subtask.text}}</p>
                     <br>
-                    <input type="checkbox" name ="completion" {%if subtask.completion %}checked {% endif %}>
+                    <input type="checkbox" name ="completion" {%if subtask.completion %}checked disabled {% endif %} data-id = "{{ subtask.id }}">
                     <label for = "completion">Completed</label>
                     <hr>
                     <br>

@@ -1,7 +1,7 @@
 function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
     button.addEventListener('click', function(e) {
         e.preventDefault()
-    subtaskId = this.getAttribute("data-id");
+    const subtaskId = this.getAttribute("data-id");
 
     fetch(`/delete-subtask/${subtaskId}`, {
         method: 'POST',
@@ -25,7 +25,7 @@ function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
     });
 }
 
-function addSubmitAddSubtaskEvent(){
+function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer){
     addSubtaskForm.addEventListener('submit', function (e){
         e.preventDefault();
 
@@ -54,7 +54,7 @@ function addSubmitAddSubtaskEvent(){
                     </div>
                     <p>${subtask.text}</p>
                     <br>
-                    <input type="checkbox" name ="completed" ${subtask.completion ? 'checked' :""}>
+                    <input type="checkbox" name ="completed" ${subtask.completion ? 'checked' :""} data-id = "${subtask.id}">
                     <label for = "completed">Completed</label>
                     <hr>
                     <br>
@@ -67,8 +67,10 @@ function addSubmitAddSubtaskEvent(){
 
                 const deleteButton = document.querySelector(`#subtask-${subtask.id} .delete-subtask-btn`);
                 const editButton = document.querySelector(`#subtask-${subtask.id} .edit-subtask-btn`);
+                const subtaskCheckbox = document.querySelector(`#subtask-${subtask.id} input[type=checkbox]`);
                 addSubtaskDeleteEvent(deleteButton, subtaskList, subtaskContainer);
                 addEditSubtaskEvent(editButton);
+                addSubtaskCheckboxEvent(subtaskCheckbox);
 
             } else {
                 console.error('Error', data.errors);
@@ -80,6 +82,28 @@ function addSubmitAddSubtaskEvent(){
         alert("Something went wrong")
     })
 
+    })
+}
+
+function addSubtaskCheckboxEvent(checkbox){
+    checkbox.addEventListener('change', function() {
+        const subtaskId = this.getAttribute('data-id');
+    
+        fetch(`/update-subtask-completion/${subtaskId}`, 
+            {
+                method : 'post',
+                headers : {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                    checkbox.disabled = data.subtask.completion;
+            }}
+        )
+        .catch(error => console.error("Error:", error));
     })
 }
 
@@ -97,8 +121,12 @@ function addEditSubtaskEvent(button){
     const subtaskTitleContent = subtaskTitle?.textContent || "";
     const subtaskTextContent = subtaskText?.textContent || "";
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
-    const subtaskCompletion = subtaskContainer.querySelector('input["type"]=checkbox')?.checked || false;
-
+    const subtaskCompletionContainer = subtaskContainer.querySelector('input[type="checkbox"]');
+    const subtaskCompletion = subtaskCompletionContainer?.checked || false;
+    const addSubtaskForm = document.getElementById("subtask-form");
+    const subtaskList = document.getElementById("subtasks-list");
+    const subtasksContainer = document.getElementById("subtasks-container");
+    
 
     const editSubtaskHtml = `
     <h2 id="form">Edit subtask:</h2>
@@ -120,7 +148,7 @@ function addEditSubtaskEvent(button){
         top: formPosition,
         behavior: 'smooth'
     });
-
+    formContainer.innerHTML = '';
     formContainer.innerHTML = editSubtaskHtml;
     const saveEditedSubtaskForm = formContainer.querySelector("form")
 
@@ -148,20 +176,34 @@ function addEditSubtaskEvent(button){
 
                 subtaskTitle.textContent = subtask.title;
                 subtaskText.textContent = subtask.text;
+
+                saveEditedSubtaskForm.reset();
+                formContainer.innerHTML = '';
                 formContainer.innerHTML = addSubtaskHTML;
+                addForm = formContainer.querySelector('form');
+                
+                addSubmitAddSubtaskEvent(addForm, subtaskList, subtasksContainer, addSubtaskForm);
+                subtaskCompletionContainer.checked = subtask.completion;
+                subtaskCompletionContainer.disabled = subtask.completion;
 
                 window.scrollTo({
                     top: subtaskPosition,
                     behavior: 'smooth'
                 });
 
+                const deleteButton = document.querySelector(`#subtask-${subtask.id} .delete-subtask-btn`);
+                const editButton = document.querySelector(`#subtask-${subtask.id} .edit-subtask-btn`);
+                const subtaskCheckbox = document.querySelector(`#subtask-${subtask.id} input[type=checkbox]`);
+                    
+                addSubtaskDeleteEvent(deleteButton, subtaskList, subtasksContainer);
+                addEditSubtaskEvent(editButton);
+                addSubtaskCheckboxEvent(subtaskCheckbox);
 
             };
-        });
+        })
+        .catch(error => console.log('Error:', error));
 
     });
-
-    addEditSubtaskEvent();
 });}
 
 document.addEventListener('DOMContentLoaded', function () {  
@@ -247,65 +289,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     if (currentUrl.includes('details')){
-        addSubmitAddSubtaskEvent();
-        addSubtaskForm.addEventListener('submit', function (e){
-            e.preventDefault();
-
-            const formData = new FormData(addSubtaskForm);
-            const url = addSubtaskForm.getAttribute('data-url');
-
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status==="success") {
-                    const subtask = data.subtask;
-                    const subtaskItem = `
-                    <div id="subtask-${subtask.id}">
-                        <div class = "to-do-nav">
-                            <h4>${subtask.title}</h4>
-                            <div class = "to-do-nav">
-                            <button class = "edit-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
-                            <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                        <p>${subtask.text}</p>
-                        <br>
-                        <input type="checkbox" name ="completed" ${subtask.completion ? 'checked' :""}>
-                        <label for = "completed">Completed</label>
-                        <hr>
-                        <br>
-                    </div>
-                    `;
-
-                    subtaskList.insertAdjacentHTML('beforeend', subtaskItem);
-                    subtaskContainer.hidden = false;
-                    addSubtaskForm.reset();
-
-                    const deleteButton = document.querySelector(`#subtask-${subtask.id} .delete-subtask-btn`);
-                    const editButton = document.querySelector(`#subtask-${subtask.id} .edit-subtask-btn`);
-                    addSubtaskDeleteEvent(deleteButton, subtaskList, subtaskContainer);
-                    addEditSubtaskEvent(editButton);
-
-                } else {
-                    console.error('Error', data.errors);
-                    alert("Error adding subtask!");
-                }
-            })
-            .catch(error => {
-            console.error("error",error);
-            alert("Something went wrong")
-        })
-
-        })
-
+        addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer, addSubtaskForm);
+        
         document.querySelectorAll('.delete-subtask-btn').forEach(
-            button => addSubtaskDeleteEvent(button, subtaskList, subtaskContainer)
+        button => addSubtaskDeleteEvent(button, subtaskList, subtaskContainer)
         );
 
         document.querySelectorAll('.edit-subtask-btn').forEach(
@@ -313,8 +300,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    
-
-    
-
+    subtaskContainer.querySelectorAll('input[type="checkbox"]').forEach( checkbox => { addSubtaskCheckboxEvent(checkbox) });
 });
