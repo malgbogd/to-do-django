@@ -272,3 +272,11 @@ img{
     background-color: gray;
     transform: scale(1.1); 
 }
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    text-align: center;
+}
+

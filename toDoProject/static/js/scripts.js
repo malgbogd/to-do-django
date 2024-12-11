@@ -206,6 +206,10 @@ function addEditSubtaskEvent(button){
     });
 });}
 
+function pluralizeTask(count) {
+    return count === 1 ? 'task' : 'tasks';
+  }
+
 document.addEventListener('DOMContentLoaded', function () {  
     const currentUrl = window.location.pathname;
     const addSubtaskForm = document.getElementById("subtask-form");
@@ -255,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function () {
         checkbox.addEventListener('change', function () {
             const todoId = this.getAttribute('data-id');
             const completionTime = document.getElementById(`completion-date-${todoId}`);
+            const notCompletedHeader = document.querySelector('h3');
 
             fetch(`/check-box-edit/${todoId}/`, {
                 method : 'post',
@@ -273,9 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     else {
                         completionTime.hidden = true;
                     }
+
+                    notCompletedHeader.textContent = `You have ${data.not_completed} ${pluralizeTask(data.not_completed)} to do!`
+
                 } else {
                     console.error('Error:', data.message);
                 }
+                
             })
             .catch(error => console.error('Error:', error));
 
@@ -284,6 +293,8 @@ document.addEventListener('DOMContentLoaded', function () {
             } else if (checkbox.checked) {
                 checkbox.disabled = true;
             }
+
+            
         });
         
     });
@@ -298,7 +309,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.edit-subtask-btn').forEach(
         button => { addEditSubtaskEvent(button)
         });
+
+        subtaskContainer.querySelectorAll('input[type="checkbox"]').forEach( checkbox => { addSubtaskCheckboxEvent(checkbox) });
     };
 
-    subtaskContainer.querySelectorAll('input[type="checkbox"]').forEach( checkbox => { addSubtaskCheckboxEvent(checkbox) });
+    
 });

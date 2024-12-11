@@ -6,19 +6,25 @@
 
 {% block content %}
 <h2>Hello {{user.username}}!</h2>
-<form action="{% url 'profile'%}" method="post" enctype="multipart/form-data">
+
+{% if messages %}
+    <div class="error-message"> {{ messages }} </div>
+{% endif %}
+
+<form action="{% url 'update-profile'%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="Username" value = "{{user.username}}">
 
         <label for="new-password">New password:</label>
-        <input type ="new-password" id="new-password" name="new-password" placeholder="New password" >
+        <input type ="password" id="new-password" name="new-password" placeholder="New password" >
         <label for="new-password-check">Repeat new password:</label>
-        <input type ="password-check" id="password-check" name="password-check" placeholder="Repeat new password" >
-        <div class="button-group">
-            <button type = 'submit'>Update profile</button>
-            <button id="delete-profile">Delete profile</button>
-        </div>
+        <input type ="password" id="password-check" name="password-check" placeholder="Repeat new password" >
+        <button type = 'submit'>Update profile</button>
+        
 </form>
-
+<form action="{% url 'delete-profile' %}" method="post">
+    {% csrf_token %}
+        <button type="submit" id="delete-profile">Delete profile</button>
+</form>
 {%endblock content%}

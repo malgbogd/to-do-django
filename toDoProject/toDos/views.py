@@ -2,7 +2,8 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.utils import timezone
 from .models import ToDo, SubToDo
@@ -68,11 +69,20 @@ def checkbox_edit(request, todo_id):
             to_do.completion_date = None
     
         to_do.save()
-        print(to_do.completion_date)
+
+        if request.user.is_authenticated:
+            to_dos = ToDo.objects.filter(author=request.user)
+
+        else: 
+            to_dos = ToDo.objects.filter(author=None)
+        
+        not_completed = to_dos.filter(completion=False).count()
+
         return JsonResponse({
             'status':'success',
             'completion': to_do.completion,
             'completion_date': to_do.completion_date.strftime('%d %b %Y %H:%M') if to_do.completion else None,
+            'not_completed':not_completed,
         })
     return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
 
@@ -154,8 +164,32 @@ def delete_subtask(request, subtask_id):
     subtask.delete()
     return JsonResponse({"status":"success"})
 
-def profile_view_update(request):
+def profile_view(request):
     return render(request, 'profile.html')
+
+def update_profile(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        new_password = request.POST.get('new-password')
+        password_check = request.POST.get('password-check')
+
+        user = request.user
+
+        if new_password and new_password != password_check:
+            return render(request, 'profile.html', {"messages":"Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if username:
+            user.username = username
+
+        if new_password:
+            user.set_password(new_password)
+            update_session_auth_hash(request, user)
+
+        user.save()
+        
+        return render(request, 'profile.html',{"messages":"Profile updated successfully."}, status = status.HTTP_200_OK)
+
+    return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 def create_todo(request):
         data = {
@@ -174,9 +208,14 @@ def create_todo(request):
         else:
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
 
+def delete_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()
+        return render(request,'register.html',{"messages":"Your profile has been deleted successfully."})
+    
 class ToDoDetails(APIView):
     def get(self, request, todo_id):
-        print(f"User logged in: {request.user.is_authenticated}")
         to_do = get_object_or_404(ToDo, id = todo_id)
         subtasks = to_do.subtasks.all()
         serializer = ToDoSerializer(to_do)
@@ -230,12 +269,19 @@ class UsersListCreate(APIView):
 
                 return redirect(reverse("main"))
             else:
-                return Response({"error": "Incorrect login details"}, status=status.HTTP_401_UNAUTHORIZED)
+                return render(request, 'login.html', {'error_message': "Incorrect username or password"})
 
         elif action == 'register':
+            password = request.data.get('password')
+            password_check = request.data.get('password-check')
+
+            if password != password_check:
+                return render(request, 'register.html', {'error_message': 'There was an error with the registration form'})
+
             serializer = UserSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
                 return render(request, 'login.html', {"user": serializer.data}, status = status.HTTP_201_CREATED)
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+    

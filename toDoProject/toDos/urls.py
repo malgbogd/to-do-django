@@ -34,11 +34,13 @@ urlpatterns = [
     path('edit/<int:todo_id>/' , views.edit_todo, name = 'edit'),
     path('save-edit/<int:todo_id>/', views.save_edited_todo, name = 'save_edits'),
     path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check_box_edit'),
-    path('profile/', views.profile_view_update, name = 'profile'),
+    path('profile/', views.profile_view, name = 'profile'),
     path('add-subtask/<int:todo_id>/', views.add_subtask, name='add_subtask'),
     path('delete-subtask/<int:subtask_id>', views.delete_subtask, name = "delete_subtask"),
     path('update-subtask/<int:subtask_id>', views.update_subtask, name = "update_subtask"),
     path('update-subtask-completion/<int:subtask_id>', views.update_subtask_completion, name = "update_subtask_completion"),
+    path('profile/delete/', views.delete_profile, name='delete-profile'),
+    path('update-profile/', views.update_profile, name = 'update-profile'),
     ]
 
 if settings.DEBUG:

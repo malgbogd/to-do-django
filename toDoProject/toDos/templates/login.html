@@ -5,7 +5,12 @@ All yours To Dos!
 {% endblock title%}
 
 {% block content%}
-<h2>Login or Register</h2>
+<h2>Login</h2>
+{% if error_message %}
+    <div class="error-message">
+        {{ error_message }}
+    </div>
+{% endif %}
 <form action = "{% url 'users' %}" method="post">
     {% csrf_token %}
     <label for="username">Username</label>

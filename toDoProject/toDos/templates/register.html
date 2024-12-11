@@ -1,22 +1,28 @@
-{% extends 'base.html'%}
+{% extends 'base.html' %}
 
-{% block title%}
+{% block title %}
 All yours To Dos!
-{% endblock title%}
+{% endblock title %}
 
-{% block content%}
-<h2>Login or Register</h2>
-<form action = "{% url 'users' %}" method="post">
+{% block content %}
+<h2>Register</h2>
+{% if error_message %}
+    <div class="error-message"> {{ error_message }} </div>
+{% endif %}
+{% if messages %}
+    <div class="error-message"> {{ messages }} </div>
+{% endif %}
+<form action="{% url 'users' %}" method="post">
     {% csrf_token %}
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required>
     
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required>
+    
     <label for="password-check">Repeat password</label>
-    <input type="password" id="password-chceck" name="password-check" required>
+    <input type="password" id="password-check" name="password-check" required>
+
     <button type="submit" name="action" value="register" class="register-btn">Register</button>
-
 </form>
-
-{% endblock content%}
+{% endblock content %}
