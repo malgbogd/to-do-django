@@ -1,3 +1,5 @@
+import json
+import os
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -6,13 +8,16 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.utils import timezone
-from .models import ToDo, SubToDo
-from .serializers import ToDoSerializer, UserSerializer, SubtaskSerializer
+from .models import ToDo, SubToDo, UserRewards
+from .serializers import ToDoSerializer, UserSerializer, SubtaskSerializer, RewardSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from pyexpat.errors import messages
+from dotenv import load_dotenv
+load_dotenv()
 
+CAT_KEY = os.environ['CAT_API_KEY']
 # Create your views here.
 
 def todo_list(request):
@@ -165,7 +170,8 @@ def delete_subtask(request, subtask_id):
     return JsonResponse({"status":"success"})
 
 def profile_view(request):
-    return render(request, 'profile.html')
+    rewards = UserRewards.objects.filter(user=request.user)
+    return render(request, 'profile.html',{'rewards':rewards})
 
 def update_profile(request):
     if request.method == 'POST':
@@ -213,7 +219,28 @@ def delete_profile(request):
         user = request.user
         user.delete()
         return render(request,'register.html',{"messages":"Your profile has been deleted successfully."})
-    
+
+def give_reward(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.method =="POST" :
+        data = json.loads(request.body)
+        image_url = data.get("url")
+
+        if not image_url:
+            return JsonResponse({"error": "Image URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        data = {
+            'user':request.user.id,
+            'image_url': image_url,
+        }
+        serializer = RewardSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+        return JsonResponse({'messages':'Image saved', 'reward':serializer.data}, status = status.HTTP_201_CREATED)
+    return JsonResponse(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+
 class ToDoDetails(APIView):
     def get(self, request, todo_id):
         to_do = get_object_or_404(ToDo, id = todo_id)

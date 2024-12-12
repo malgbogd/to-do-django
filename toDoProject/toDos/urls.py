@@ -41,6 +41,7 @@ urlpatterns = [
     path('update-subtask-completion/<int:subtask_id>', views.update_subtask_completion, name = "update_subtask_completion"),
     path('profile/delete/', views.delete_profile, name='delete-profile'),
     path('update-profile/', views.update_profile, name = 'update-profile'),
+    path('give-reward/', views.give_reward, name = 'give_reward')
     ]
 
 if settings.DEBUG:

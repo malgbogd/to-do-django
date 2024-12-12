@@ -25,6 +25,15 @@ class SubToDo(models.Model):
     def __str__(self):
         return f'{self.title} - subtask for {self.to_do}'
     
+class UserRewards(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rewards')
+    image_url = models.URLField()
+    date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Reward {self.id} of {self.user.username}"
+
+
 @receiver(post_save, sender = User)
 def create_auth_token(sender, instance = None, created = False, **kwargs):
     if created:

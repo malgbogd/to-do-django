@@ -11,6 +11,15 @@
     <div class="error-message"> {{ messages }} </div>
 {% endif %}
 
+{% if rewards.count != 0 %}
+<h3>Your rewards!</h3>
+<div class = "rewards-container">
+    {% for reward in rewards %}
+    <img src="{{reward.image_url}}" alt="Random cat image">
+    {% endfor %}
+</div>
+{% endif %}
+
 <form action="{% url 'update-profile'%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <label for="username">Username:</label>

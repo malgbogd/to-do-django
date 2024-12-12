@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework.validators import UniqueValidator
-from .models import ToDo, SubToDo
+from .models import ToDo, SubToDo, UserRewards
 from django.contrib.auth.models import User
 
 class ToDoSerializer(serializers.ModelSerializer):
@@ -17,6 +17,12 @@ class SubtaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubToDo
         fields = ('id','to_do','title','text','completion')
+
+class RewardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRewards
+        fields = ('id','user','image_url','date')
+
 
 class UserSerializer(serializers.ModelSerializer):
     to_dos = serializers.PrimaryKeyRelatedField(many=True, queryset = ToDo.objects.all())

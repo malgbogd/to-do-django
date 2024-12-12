@@ -1,3 +1,5 @@
+const currentUrl = window.location.pathname;
+
 function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
     button.addEventListener('click', function(e) {
         e.preventDefault()
@@ -210,8 +212,71 @@ function pluralizeTask(count) {
     return count === 1 ? 'task' : 'tasks';
   }
 
+function createModal(imgUrl) {
+    const modal = document.createElement("div");
+    const modalContent = document.createElement("div");
+    const img = document.createElement("img");
+    const closeBtn = document.createElement("span");
+    const text = document.createElement("h4");
+
+    modal.classList.add("modal");
+    modalContent.classList.add("modal-content");
+    closeBtn.classList.add("close");
+
+    img.src = imgUrl;
+    img.alt = "Random cat image"
+    closeBtn.innerHTML = "&times;";
+
+    text.textContent = "This is your reward for completing to do!"
+
+    closeBtn.addEventListener("click",()=>{
+        document.body.removeChild(modal);
+    })
+
+    modal.addEventListener("click", (event) =>{
+        if (event.target === modal){
+            document.body.removeChild(modal);
+        }
+    })
+
+    modalContent.appendChild(closeBtn);
+    modalContent.appendChild(img);
+    modalContent.appendChild(text);
+    modal.appendChild(modalContent);
+
+    document.body.appendChild(modal);
+}
+
+function saveReward(data){
+    console.log(data)
+    fetch('/give-reward/', {
+        method : "POST",
+        headers : {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response =>response.json())
+    .then(data => {
+        console.log("data");
+    })
+    .catch(error => console.log("Error:", error));
+}
+
+function giveReward(){
+        fetch('https://api.thecatapi.com/v1/images/search')
+        .then(response => response.json())
+        .then(data =>{
+            const imgUrl = data[0].url;
+            saveReward({url:imgUrl});
+            createModal(imgUrl);
+        })
+        .catch(error=>console.log("Error:", error));
+    }
+
 document.addEventListener('DOMContentLoaded', function () {  
-    const currentUrl = window.location.pathname;
+
     const addSubtaskForm = document.getElementById("subtask-form");
     const subtaskList = document.getElementById("subtasks-list");
     const subtaskContainer = document.getElementById("subtasks-container");
@@ -274,11 +339,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.completion) {
                         completionTime.textContent = data.completion_date;
                         completionTime.hidden = false;
+                        giveReward()
                     } 
                     else {
                         completionTime.hidden = true;
                     }
 
+                    if (!currentUrl.includes('details'));
                     notCompletedHeader.textContent = `You have ${data.not_completed} ${pluralizeTask(data.not_completed)} to do!`
 
                 } else {
