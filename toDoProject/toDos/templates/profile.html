@@ -22,6 +22,7 @@
 
 <form action="{% url 'update_profile'%}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
+    <h3>Update your profile!</h3>
     <label for="username">Username:</label>
         <input type="text" id="username" name="username" placeholder="Username" value = "{{user.username}}">
 

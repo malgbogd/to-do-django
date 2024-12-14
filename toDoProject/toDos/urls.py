@@ -31,16 +31,16 @@ urlpatterns = [
     path('users/', views.UsersListCreate.as_view(), name = 'users'),
     path('', views.todo_list_view, name = 'main'),
     path('todo/add/', views.add_todo_view, name = 'add_to_do'),
-    path('todo/create', views.CreateTodo.as_view(), name = 'create_todo'),
-    path('todo/details/<int:todo_id>', views.todo_details, name = 'details'),
+    path('todo/create/', views.create_todo, name = 'create_todo'),
+    path('todo/details/<int:todo_id>', views.todo_details_view, name = 'details'),
     path('todo/delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
-    path('todo/edit/<int:todo_id>/' , views.edit_todo, name = 'edit'),
+    path('todo/edit/<int:todo_id>/' , views.edit_todo_view, name = 'edit'),
     path('todo/save-edits/<int:todo_id>/', views.save_edited_todo, name = 'save_edits'),
     path('todo/toggle/<int:todo_id>/', views.ToggleTodoCompletion.as_view(), name ='toggle_todo'),
     path('subtask/add/<int:todo_id>/', views.AddSubtask.as_view(), name='add_subtask'),
-    path('subtask/delete/<int:subtask_id>', views.delete_subtask, name = "delete_subtask"),
-    path('subtask/update/<int:subtask_id>', views.UpdateSubtask.as_view(), name = "update_subtask"),
-    path('subtask/toggle/<int:subtask_id>', views.ToggleSubtaskCompletion.as_view, name = "toggle_subtask_completion"),
+    path('subtask/delete/<int:subtask_id>/', views.delete_subtask, name = "delete_subtask"),
+    path('subtask/update/<int:subtask_id>/', views.UpdateSubtask.as_view(), name = "update_subtask"),
+    path('subtask/toggle/<int:subtask_id>/', views.ToggleSubtaskCompletion.as_view(), name = "toggle_subtask_completion"),
     path('give-reward/', views.GiveReward.as_view(), name = 'give_reward')
     ]
 

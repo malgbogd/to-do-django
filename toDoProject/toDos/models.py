@@ -25,7 +25,7 @@ class SubToDo(models.Model):
     def __str__(self):
         return f'{self.title} - subtask for {self.to_do}'
     
-class UserRewards(models.Model):
+class UserReward(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='rewards')
     image_url = models.URLField()
     date = models.DateTimeField(auto_now=True)

@@ -1,19 +1,17 @@
 import json
 import os
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 from django.views import View
 from django.utils import timezone
-from .models import ToDo, SubToDo, UserRewards
+from .models import ToDo, SubToDo, UserReward
 from .serializers import ToDoSerializer, UserSerializer, SubtaskSerializer, RewardSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from pyexpat.errors import messages
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -32,7 +30,6 @@ def todo_list_view(request):
     return render (request, 'main.html',{"todos":to_dos, 'not_completed':not_completed })
 
 def add_todo_view(request):
-    print(f"User logged in: {request.user.is_authenticated}")
     return render(request, 'create.html')
 
 def login_view(request):
@@ -58,7 +55,7 @@ def save_edited_todo(request, todo_id):
 
     return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
 
-def edit_todo(request, todo_id):
+def edit_todo_view(request, todo_id):
     to_do =get_object_or_404(ToDo, id = todo_id)
     return render(request, 'edit.html' ,{"todo": to_do})
 
@@ -68,7 +65,7 @@ def delete_subtask(request, subtask_id):
     return JsonResponse({"status":"success"})
 
 def profile_view(request):
-    rewards = UserRewards.objects.filter(user=request.user)
+    rewards = UserReward.objects.filter(user=request.user)
     return render(request, 'profile.html',{'rewards':rewards})
 
 def delete_profile(request):
@@ -77,12 +74,30 @@ def delete_profile(request):
         user.delete()
         return render(request,'register.html',{"messages":"Your profile has been deleted successfully."})
 
-def todo_details(request, todo_id):
+def todo_details_view(request, todo_id):
     to_do = get_object_or_404(ToDo, id = todo_id)
     subtasks = to_do.subtasks.all()
     serializer = ToDoSerializer(to_do)
     serializerSubtask = SubtaskSerializer(subtasks, many =True)
     return render(request, 'details.html',{"todo":to_do,"subtasks":serializerSubtask.data})
+
+def create_todo(request):
+        data = {
+            'title':request.POST.get('title'),
+            'text': request.POST.get('text'),
+            'image':request.FILES.get('image'),
+            'author':None,
+        }
+
+        if request.user.is_authenticated:
+            data['author'] = request.user.id
+
+        serializer = ToDoSerializer(data = data, context={'request':request})
+        if serializer.is_valid():
+            to_do = serializer.save()
+            return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
+        else:
+            return JsonResponse(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
 
 class GiveReward(View):
     def post(self,request):
@@ -111,11 +126,19 @@ class ToDoDelete(View):
         to_do = get_object_or_404(ToDo, id=todo_id)
         to_do.delete()
 
+        if request.user.is_authenticated:
+                to_dos = ToDo.objects.filter(author=request.user)
+
+        else: 
+            to_dos = ToDo.objects.filter(author=None)
+
+        not_completed = to_dos.filter(completion=False).count()
+
         redirect_url = request.POST.get('redirect')
         if redirect_url:
             return JsonResponse({'status': 'redirect', 'url': redirect_url})
 
-        return JsonResponse({'status':'success', 'todo_id': todo_id})
+        return JsonResponse({'status':'success', 'todo_id': todo_id, "not_completed":not_completed})
     
 class UsersListCreate(APIView):
     def get(self, request):
@@ -168,24 +191,6 @@ class UsersListCreate(APIView):
                 return render(request, 'login.html', {"user": serializer.data}, status = status.HTTP_201_CREATED)
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
-    
-class CreateTodo(View):
-        def post(self, request):
-            data = {
-                'title':request.POST.get('title'),
-                'text': request.POST.get('text'),
-                'image':request.FILES.get('image'),
-            }
-
-            if request.user.is_authenticated:
-                data['author'] = request.user
-
-            serializer = ToDoSerializer(data = data)
-            if serializer.is_valid():
-                to_do = serializer.save()
-                return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
-            else:
-                return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
 
 class ToggleTodoCompletion(View):
     def post(self, request,todo_id):

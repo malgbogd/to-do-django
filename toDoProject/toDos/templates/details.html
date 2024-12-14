@@ -9,7 +9,7 @@
 <h2>{{todo.title}}</h2>
     <div class = "to-do-nav">
         <button class = "edit-button small-button" data-id = "{{ todo.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
-        <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect="{% url 'main' %}"><i class="fas fa-trash"></i></button>
+        <button class = "delete-button small-button" data-url = "{% url 'delete' todo.id %}" data-id = "{{ todo.id }}" data-redirect="{% url 'main' %}"><i class="fas fa-trash"></i></button>
     </div>
 </div>
 <br>
@@ -17,7 +17,7 @@
 
 <p>{{todo.text}}</p>
 
-<input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.completion %}checked disabled {% endif %} data-id = "{{ todo.id }}">
+<input type="checkbox" name ="completed" class = "todo-comletion" {%if todo.completion %}checked disabled {% endif %} data-id = "{{ todo.id }}" data-url = "{% url 'toggle_todo' todo.id %}">
 <label for = "completed" >Completed</label>
 
 <h5 id = "completion-date-{{todo.id}}" {% if not todo.completion%} hidden {% endif %}>{{todo.completion_date | date:"j M Y G:i"}}</h5>
@@ -42,7 +42,7 @@
                         <h4>{{subtask.title}}</h4>
                         <div class = "to-do-nav">
                             <button class = "edit-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}"><i class="fas fa-edit"></i></button>
-                            <button class = "delete-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}"><i class="fas fa-trash"></i></button>
+                            <button class = "delete-subtask-btn small-subtask-button" data-id = "{{ subtask.id }}" data-url = "{% url 'delete_subtask' subtask.id %}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <p>{{subtask.text}}</p>

@@ -83,26 +83,6 @@ a:hover {
     color: #2980b9;
 }
 
-/* Responsywność */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2rem;
-    }
-
-    nav {
-        display: flex;
-        flex-direction: column;
-    }
-
-    nav form {
-        margin: 10px 0;
-    }
-
-    main {
-        padding: 20px;
-    }
-}
-
 form {
     background-color: white;
     padding: 20px;
@@ -181,26 +161,6 @@ form button:hover {
 
 .register-btn:hover {
     background-color: #27ae60;
-}
-
-/* Responsywność */
-@media (max-width: 768px) {
-    form {
-        padding: 15px;
-    }
-
-    h2 {
-        font-size: 1.8rem;
-    }
-
-    .button-group {
-        flex-direction: column;
-    }
-
-    .button-group button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
 }
 
 .to-do-nav{
@@ -341,4 +301,123 @@ img{
 .rewards-container img {
     max-width: 15%;
     height: auto;
+}
+
+
+/* Responsywność */
+
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    h2, h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    body {
+        padding: 10px;
+    }
+
+    form {
+        padding: 15px;
+        max-width: 100%;
+    }
+
+    form input,
+    form textarea {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    button, .small-button, .small-subtask-button {
+        width: 100%;
+        padding: 12px 0;
+    }
+
+    nav {
+        margin-bottom: 20px;
+    }
+
+    nav form {
+        display: block;
+        margin: 0 0 15px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    img {
+        border-radius: 20px;
+    }
+
+    .rewards-container img {
+        max-width: 30%;
+    }
+
+    .modal-content {
+        width: 90%;
+        padding: 15px;
+    }
+
+    .small-button, .small-subtask-button {
+        font-size: 18px;
+        padding: 8px;
+    }
+
+    .completed-div {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2, h3 {
+        font-size: 1.2rem;
+    }
+
+    body {
+        padding: 5px;
+    }
+
+    form {
+        padding: 10px;
+    }
+
+    form input,
+    form textarea {
+        font-size: 0.8rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .rewards-container img {
+        max-width: 45%;
+    }
+
+    .small-button, .small-subtask-button {
+        font-size: 16px;
+        padding: 6px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 10px;
+    }
+
+    .completed-div {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

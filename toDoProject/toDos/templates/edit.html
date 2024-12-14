@@ -12,7 +12,7 @@ Create Your To Dos!
         <input type="text" id="title" name="title" placeholder="Title" required value = "{{todo.title}}">
         
         <div class = "completed-div">
-            <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.completion %}checked {% endif %} data-id="{{todo.id}}">
+            <input type="checkbox" name ="completed" class = "todo-comletion" {%if todo.completion %}checked {% endif %} data-id="{{todo.id}}" data-url = "{% url 'toggle_todo' todo.id %}">
             <label for = "completed" >Completed</label>
         </div>
         <h5 id="completion-date-{{todo.id}}" {% if not todo.completion%} hidden {% endif %}>{{todo.completion_date | date:"j M Y G:i"}}</h5>

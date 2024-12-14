@@ -16,14 +16,14 @@ All yours To Dos!
                 {% csrf_token %}
                 <button class = "edit-button small-button" data-id = "{{ todo.id }}" data-url = "{% url 'edit' todo.id %}"><i class="fas fa-edit"></i></button>
                 {% csrf_token %}
-                <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect=""><i class="fas fa-trash"></i></button>
+                <button class = "delete-button small-button" data-id = "{{ todo.id }}" data-redirect="" data-url = "{% url 'delete' todo.id %}"><i class="fas fa-trash" ></i></button>
             </div>
         </div>
 
     <h5>{{todo.creation_date | date:"j M Y G:i"}}</h5>
     <p>{{todo.text | truncatechars:50}}</p>
     <br>
-    <input type="checkbox" name ="completed" class = "todo-comlition" {%if todo.completion %}checked disabled {% endif %} data-id="{{todo.id}}">
+    <input type="checkbox" name ="completed" class = "todo-comletion" {%if todo.completion %}checked disabled {% endif %} data-id="{{todo.id}}" data-url = "{% url 'toggle_todo' todo.id %}">
     <label for = "completed" >Completed</label>
 
     <h5 id = "completion-date-{{todo.id}}" {% if not todo.completion%} hidden {% endif %}>{{todo.completion_date | date:"j M Y G:i"}}</h5>
