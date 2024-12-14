@@ -5,7 +5,7 @@ function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
         e.preventDefault()
     const subtaskId = this.getAttribute("data-id");
 
-    fetch(`/delete-subtask/${subtaskId}`, {
+    fetch(`/subtask/delete/${subtaskId}`, {
         method: 'POST',
         headers: {
             'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -50,7 +50,7 @@ function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer)
                     <div class = "to-do-nav">
                         <h4>${subtask.title}</h4>
                         <div class = "to-do-nav">
-                        <button class = "edit-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
+                        <button class = "edit-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/todo/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
                         <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
@@ -91,7 +91,7 @@ function addSubtaskCheckboxEvent(checkbox){
     checkbox.addEventListener('change', function() {
         const subtaskId = this.getAttribute('data-id');
     
-        fetch(`/update-subtask-completion/${subtaskId}`, 
+        fetch(`/subtask/toggle/${subtaskId}`, 
             {
                 method : 'post',
                 headers : {
@@ -132,7 +132,7 @@ function addEditSubtaskEvent(button){
 
     const editSubtaskHtml = `
     <h2 id="form">Edit subtask:</h2>
-    <form data-url="/update-subtask/${subtaskId}" method="post" id="saveEditedSubtaskForm">
+    <form data-url="/subtask/update/${subtaskId}" method="post" id="saveEditedSubtaskForm">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" placeholder="Title" value = "${subtaskTitleContent}" required>
@@ -144,7 +144,7 @@ function addEditSubtaskEvent(button){
         <label for = "completed">Completed</label>
         </div>
         <br>
-        <button type = 'submit' data-url="/update-subtask/${subtaskId}" >Save</button>
+        <button type = 'submit' data-url="/subtask/update/${subtaskId}" >Save</button>
     </form>`
     window.scrollTo({
         top: formPosition,
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const todoId = this.getAttribute('data-id');
                 const redirectUrl = this.getAttribute('data-redirect');
 
-                fetch(`/delete/${todoId}/`, {
+                fetch(`/todo/delete/${todoId}/`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const completionTime = document.getElementById(`completion-date-${todoId}`);
             const notCompletedHeader = document.querySelector('h3');
 
-            fetch(`/check-box-edit/${todoId}/`, {
+            fetch(`/todo/toggle/${todoId}/`, {
                 method : 'post',
                 headers : {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,

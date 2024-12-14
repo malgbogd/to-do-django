@@ -20,7 +20,7 @@ load_dotenv()
 CAT_KEY = os.environ['CAT_API_KEY']
 # Create your views here.
 
-def todo_list(request):
+def todo_list_view(request):
 
     if request.user.is_authenticated:
         to_dos = ToDo.objects.filter(author=request.user)
@@ -31,7 +31,7 @@ def todo_list(request):
     not_completed = to_dos.filter(completion=False).count()
     return render (request, 'main.html',{"todos":to_dos, 'not_completed':not_completed })
 
-def add_todo(request):
+def add_todo_view(request):
     print(f"User logged in: {request.user.is_authenticated}")
     return render(request, 'create.html')
 
@@ -62,108 +62,6 @@ def edit_todo(request, todo_id):
     to_do =get_object_or_404(ToDo, id = todo_id)
     return render(request, 'edit.html' ,{"todo": to_do})
 
-def checkbox_edit(request, todo_id):
-    if request.method == "POST":
-        to_do =get_object_or_404(ToDo, id=todo_id)
-
-        to_do.completion = not to_do.completion
-
-        if to_do.completion:
-            to_do.completion_date = timezone.now()
-        else:
-            to_do.completion_date = None
-    
-        to_do.save()
-
-        if request.user.is_authenticated:
-            to_dos = ToDo.objects.filter(author=request.user)
-
-        else: 
-            to_dos = ToDo.objects.filter(author=None)
-        
-        not_completed = to_dos.filter(completion=False).count()
-
-        return JsonResponse({
-            'status':'success',
-            'completion': to_do.completion,
-            'completion_date': to_do.completion_date.strftime('%d %b %Y %H:%M') if to_do.completion else None,
-            'not_completed':not_completed,
-        })
-    return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
-
-def add_subtask(request, todo_id):
-    print("Metoda żądania:", request.method)
-    print("Otrzymane dane:", request.POST)
-
-    if request.method == 'POST':
-        to_do = get_object_or_404(ToDo, id = todo_id)
-
-        data = {
-            'to_do': to_do.id,
-            'title':request.POST.get('title'),
-            'text': request.POST.get('text'),
-            'completion': False,
-        }
-        serializer = SubtaskSerializer(data = data)
-        if serializer.is_valid():
-            subtask = serializer.save()
-            return JsonResponse({
-                "status":"success",
-                "subtask": {
-                    "id": subtask.id,
-                    "title":subtask.title,
-                    "text":subtask.text,
-                    "to_do":subtask.to_do.id,
-                    "completion":subtask.completion,
-                }
-            })
-        else:
-            return JsonResponse({"status":"error", "errors":serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
-    return JsonResponse({"status":"error", "message":"Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
-
-def update_subtask(request, subtask_id):
-    subtask = get_object_or_404(SubToDo, id=subtask_id)
-    title = request.POST.get('title')
-    text = request.POST.get('text')
-    completion = request.POST.get('completion', False)
-    completion = True if completion=="on" else False
-
-    if not title or not text:
-        return JsonResponse({"status": "error", "message": "Title and text are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    subtask.title = title
-    subtask.text = text
-    subtask.completion = completion
-
-    subtask.save()
-    
-    return JsonResponse({
-                "status":"success",
-                "subtask": {
-                    "id": subtask.id,
-                    "title":subtask.title,
-                    "text":subtask.text,
-                    "to_do":subtask.to_do.id,
-                    "completion":subtask.completion,
-                }
-            }, status = status.HTTP_200_OK)
-
-def update_subtask_completion(request, subtask_id):
-    subtask = get_object_or_404(SubToDo, id=subtask_id)
-    subtask.completion = not subtask.completion
-    subtask.save()
-    
-    return JsonResponse({
-                "status":"success",
-                "subtask": {
-                    "id": subtask.id,
-                    "title":subtask.title,
-                    "text":subtask.text,
-                    "to_do":subtask.to_do.id,
-                    "completion":subtask.completion,
-                }
-            }, status = status.HTTP_200_OK)
-
 def delete_subtask(request, subtask_id):
     subtask = get_object_or_404(SubToDo, id = subtask_id)
     subtask.delete()
@@ -173,82 +71,41 @@ def profile_view(request):
     rewards = UserRewards.objects.filter(user=request.user)
     return render(request, 'profile.html',{'rewards':rewards})
 
-def update_profile(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        new_password = request.POST.get('new-password')
-        password_check = request.POST.get('password-check')
-
-        user = request.user
-
-        if new_password and new_password != password_check:
-            return render(request, 'profile.html', {"messages":"Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if username:
-            user.username = username
-
-        if new_password:
-            user.set_password(new_password)
-            update_session_auth_hash(request, user)
-
-        user.save()
-        
-        return render(request, 'profile.html',{"messages":"Profile updated successfully."}, status = status.HTTP_200_OK)
-
-    return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
-
-def create_todo(request):
-        data = {
-            'title':request.POST.get('title'),
-            'text': request.POST.get('text'),
-            'image':request.FILES.get('image'),
-        }
-
-        if request.user.is_authenticated:
-            data['author'] = request.user
-
-        serializer = ToDoSerializer(data = data)
-        if serializer.is_valid():
-            to_do = serializer.save()
-            return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
-        else:
-            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
-
 def delete_profile(request):
     if request.method == 'POST':
         user = request.user
         user.delete()
         return render(request,'register.html',{"messages":"Your profile has been deleted successfully."})
 
-def give_reward(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
+def todo_details(request, todo_id):
+    to_do = get_object_or_404(ToDo, id = todo_id)
+    subtasks = to_do.subtasks.all()
+    serializer = ToDoSerializer(to_do)
+    serializerSubtask = SubtaskSerializer(subtasks, many =True)
+    return render(request, 'details.html',{"todo":to_do,"subtasks":serializerSubtask.data})
 
-    if request.method =="POST" :
-        data = json.loads(request.body)
-        image_url = data.get("url")
+class GiveReward(View):
+    def post(self,request):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "User not authenticated"}, status=status.HTTP_403_FORBIDDEN)
 
-        if not image_url:
-            return JsonResponse({"error": "Image URL is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        data = {
-            'user':request.user.id,
-            'image_url': image_url,
-        }
-        serializer = RewardSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-        return JsonResponse({'messages':'Image saved', 'reward':serializer.data}, status = status.HTTP_201_CREATED)
-    return JsonResponse(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+        if request.method =="POST" :
+            data = json.loads(request.body)
+            image_url = data.get("url")
 
-class ToDoDetails(APIView):
-    def get(self, request, todo_id):
-        to_do = get_object_or_404(ToDo, id = todo_id)
-        subtasks = to_do.subtasks.all()
-        serializer = ToDoSerializer(to_do)
-        serializerSubtask = SubtaskSerializer(subtasks, many =True)
-        return render(request, 'details.html',{"todo":to_do,"subtasks":serializerSubtask.data})
-    
+            if not image_url:
+                return JsonResponse({"error": "Image URL is required"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            data = {
+                'user':request.user.id,
+                'image_url': image_url,
+            }
+            serializer = RewardSerializer(data = data)
+            if serializer.is_valid():
+                serializer.save()
+            return JsonResponse({'messages':'Image saved', 'reward':serializer.data}, status = status.HTTP_201_CREATED)
+        return JsonResponse(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+ 
 class ToDoDelete(View):
     def post(self, request, todo_id):
         to_do = get_object_or_404(ToDo, id=todo_id)
@@ -312,3 +169,148 @@ class UsersListCreate(APIView):
             return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
     
+class CreateTodo(View):
+        def post(self, request):
+            data = {
+                'title':request.POST.get('title'),
+                'text': request.POST.get('text'),
+                'image':request.FILES.get('image'),
+            }
+
+            if request.user.is_authenticated:
+                data['author'] = request.user
+
+            serializer = ToDoSerializer(data = data)
+            if serializer.is_valid():
+                to_do = serializer.save()
+                return redirect(reverse('details', kwargs = {"todo_id":to_do.id}))
+            else:
+                return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST) 
+
+class ToggleTodoCompletion(View):
+    def post(self, request,todo_id):
+        if request.method == "POST":
+            to_do =get_object_or_404(ToDo, id=todo_id)
+
+            to_do.completion = not to_do.completion
+
+            if to_do.completion:
+                to_do.completion_date = timezone.now()
+            else:
+                to_do.completion_date = None
+        
+            to_do.save()
+
+            if request.user.is_authenticated:
+                to_dos = ToDo.objects.filter(author=request.user)
+
+            else: 
+                to_dos = ToDo.objects.filter(author=None)
+            
+            not_completed = to_dos.filter(completion=False).count()
+
+            return JsonResponse({
+                'status':'success',
+                'completion': to_do.completion,
+                'completion_date': to_do.completion_date.strftime('%d %b %Y %H:%M') if to_do.completion else None,
+                'not_completed':not_completed,
+            })
+        return JsonResponse({'status':'error', 'message': 'Invalid request method'}, status = status.HTTP_400_BAD_REQUEST)
+    
+class AddSubtask(View):
+    def post (self, request, todo_id):
+        if request.method == 'POST':
+            to_do = get_object_or_404(ToDo, id = todo_id)
+
+            data = {
+                'to_do': to_do.id,
+                'title':request.POST.get('title'),
+                'text': request.POST.get('text'),
+                'completion': False,
+            }
+            serializer = SubtaskSerializer(data = data)
+            if serializer.is_valid():
+                subtask = serializer.save()
+                return JsonResponse({
+                    "status":"success",
+                    "subtask": {
+                        "id": subtask.id,
+                        "title":subtask.title,
+                        "text":subtask.text,
+                        "to_do":subtask.to_do.id,
+                        "completion":subtask.completion,
+                    }
+                })
+            else:
+                return JsonResponse({"status":"error", "errors":serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({"status":"error", "message":"Invalid request"}, status=status.HTTP_400_BAD_REQUEST)
+    
+class UpdateSubtask(View):
+    def post (self,request, subtask_id):
+        subtask = get_object_or_404(SubToDo, id=subtask_id)
+        title = request.POST.get('title')
+        text = request.POST.get('text')
+        completion = request.POST.get('completion', False)
+        completion = True if completion=="on" else False
+
+        if not title or not text:
+            return JsonResponse({"status": "error", "message": "Title and text are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        subtask.title = title
+        subtask.text = text
+        subtask.completion = completion
+
+        subtask.save()
+        
+        return JsonResponse({
+                    "status":"success",
+                    "subtask": {
+                        "id": subtask.id,
+                        "title":subtask.title,
+                        "text":subtask.text,
+                        "to_do":subtask.to_do.id,
+                        "completion":subtask.completion,
+                    }
+                }, status = status.HTTP_200_OK)
+
+class ToggleSubtaskCompletion(View):
+    def post (self,request, subtask_id):
+        subtask = get_object_or_404(SubToDo, id=subtask_id)
+        subtask.completion = not subtask.completion
+        subtask.save()
+        
+        return JsonResponse({
+                    "status":"success",
+                    "subtask": {
+                        "id": subtask.id,
+                        "title":subtask.title,
+                        "text":subtask.text,
+                        "to_do":subtask.to_do.id,
+                        "completion":subtask.completion,
+                    }
+                }, status = status.HTTP_200_OK)
+
+class UpdateProfile(View):
+    def post (self,request):
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            new_password = request.POST.get('new-password')
+            password_check = request.POST.get('password-check')
+
+            user = request.user
+
+            if new_password and new_password != password_check:
+                return render(request, 'profile.html', {"messages":"Passwords do not match"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if username:
+                user.username = username
+
+            if new_password:
+                user.set_password(new_password)
+                update_session_auth_hash(request, user)
+
+            user.save()
+            
+            return render(request, 'profile.html',{"messages":"Profile updated successfully."}, status = status.HTTP_200_OK)
+
+        return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)

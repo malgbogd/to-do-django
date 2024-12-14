@@ -22,26 +22,26 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.todo_list, name = 'main'),
-    path('details/<int:todo_id>', views.ToDoDetails.as_view(), name = 'details'),
-    path('users/', views.UsersListCreate.as_view(), name = 'users'),
-    path('add-to-do/', views.add_todo, name = 'add_to_do'),
-    path('create-todo', views.create_todo, name = 'create_todo'),
+    path('profile/', views.profile_view, name = 'profile'),
+    path('profile/delete/', views.delete_profile, name='delete_profile'),
+    path('profile/update/', views.UpdateProfile.as_view(), name = 'update_profile'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('logout/', views.logout_view, name = 'logout_view'),
-    path('delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
-    path('edit/<int:todo_id>/' , views.edit_todo, name = 'edit'),
-    path('save-edit/<int:todo_id>/', views.save_edited_todo, name = 'save_edits'),
-    path('check-box-edit/<int:todo_id>/', views.checkbox_edit, name ='check_box_edit'),
-    path('profile/', views.profile_view, name = 'profile'),
-    path('add-subtask/<int:todo_id>/', views.add_subtask, name='add_subtask'),
-    path('delete-subtask/<int:subtask_id>', views.delete_subtask, name = "delete_subtask"),
-    path('update-subtask/<int:subtask_id>', views.update_subtask, name = "update_subtask"),
-    path('update-subtask-completion/<int:subtask_id>', views.update_subtask_completion, name = "update_subtask_completion"),
-    path('profile/delete/', views.delete_profile, name='delete-profile'),
-    path('update-profile/', views.update_profile, name = 'update-profile'),
-    path('give-reward/', views.give_reward, name = 'give_reward')
+    path('users/', views.UsersListCreate.as_view(), name = 'users'),
+    path('', views.todo_list_view, name = 'main'),
+    path('todo/add/', views.add_todo_view, name = 'add_to_do'),
+    path('todo/create', views.CreateTodo.as_view(), name = 'create_todo'),
+    path('todo/details/<int:todo_id>', views.todo_details, name = 'details'),
+    path('todo/delete/<int:todo_id>/', views.ToDoDelete.as_view(), name = 'delete'),
+    path('todo/edit/<int:todo_id>/' , views.edit_todo, name = 'edit'),
+    path('todo/save-edits/<int:todo_id>/', views.save_edited_todo, name = 'save_edits'),
+    path('todo/toggle/<int:todo_id>/', views.ToggleTodoCompletion.as_view(), name ='toggle_todo'),
+    path('subtask/add/<int:todo_id>/', views.AddSubtask.as_view(), name='add_subtask'),
+    path('subtask/delete/<int:subtask_id>', views.delete_subtask, name = "delete_subtask"),
+    path('subtask/update/<int:subtask_id>', views.UpdateSubtask.as_view(), name = "update_subtask"),
+    path('subtask/toggle/<int:subtask_id>', views.ToggleSubtaskCompletion.as_view, name = "toggle_subtask_completion"),
+    path('give-reward/', views.GiveReward.as_view(), name = 'give_reward')
     ]
 
 if settings.DEBUG:
