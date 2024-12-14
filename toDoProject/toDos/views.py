@@ -40,6 +40,7 @@ def register_view(request):
 
 def logout_view(request):
     logout(request)
+    request.session.flush()
     return redirect('main')
 
 def save_edited_todo(request, todo_id):
@@ -188,9 +189,9 @@ class UsersListCreate(APIView):
             serializer = UserSerializer(data = request.data)
             if serializer.is_valid():
                 serializer.save()
-                return render(request, 'login.html', {"user": serializer.data}, status = status.HTTP_201_CREATED)
-            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
-        return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'login.html', {"user": serializer.data, "message":"User created successfully"}, status = status.HTTP_201_CREATED)
+            return JsonResponse(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
 
 class ToggleTodoCompletion(View):
     def post(self, request,todo_id):

@@ -97,9 +97,9 @@ function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer)
 
 function addSubtaskCheckboxEvent(checkbox){
     checkbox.addEventListener('change', function() {
-        const subtaskId = this.getAttribute('data-id');
+        const dataUrl = this.getAttribute('data-url');
     
-        fetch(`/subtask/toggle/${subtaskId}`, 
+        fetch(dataUrl, 
             {
                 method : 'post',
                 headers : {
@@ -137,7 +137,7 @@ function addEditSubtaskEvent(button){
 
     const editSubtaskHtml = `
     <h2 id="form">Edit subtask:</h2>
-    <form data-url="/subtask/update/${subtaskId}" method="post" id="saveEditedSubtaskForm">
+    <form data-url="/subtask/update/${subtaskId}/" method="post" id="saveEditedSubtaskForm">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" placeholder="Title" value = "${subtaskTitleContent}" required>
@@ -149,7 +149,7 @@ function addEditSubtaskEvent(button){
         <label for = "completed">Completed</label>
         </div>
         <br>
-        <button type = 'submit' data-url="/subtask/update/${subtaskId}" >Save</button>
+        <button type = 'submit' data-url="/subtask/update/${subtaskId}/" >Save</button>
     </form>`
     smoothScrollTo(formContainer)
     
@@ -265,8 +265,10 @@ function saveReward(data){
 }
 
 function isUserAuthenticated() {
-    return document.cookie.includes("username=")
-}
+        const authElement = document.getElementById("auth-status");
+        const isAuthenticated = authElement.dataset.authenticated === "true";
+        return isAuthenticated
+    }
 
 function giveReward(){
 
@@ -283,6 +285,40 @@ function giveReward(){
     }   
 }
 
+function addDeleteBtnEvent(button){
+    button.addEventListener('click', function () {
+        const notCompletedHeader = document.querySelector('h3');
+        const dataUrl = this.getAttribute('data-url');
+        const todoId = this.getAttribute('data-id');
+        const redirectUrl = this.getAttribute('data-redirect');
+
+        fetch(dataUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+
+            body: `redirect=${encodeURIComponent(redirectUrl)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const todoElement = document.getElementById(`todo-${todoId}`);
+                if (!currentUrl.includes('details'));
+                notCompletedHeader.textContent = `You have ${data.not_completed} ${pluralizeTask(data.not_completed)} to do!`
+                if (todoElement) {
+                    todoElement.remove();
+                    
+                }
+            } else if (data.status === 'redirect'){
+                window.location.href = data.url;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {  
 
     const addSubtaskForm = document.getElementById("subtask-form");
@@ -290,39 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const subtaskContainer = document.getElementById("subtasks-container");
     
     document.querySelectorAll('.delete-button').forEach(
-        button => {
-            button.addEventListener('click', function () {
-                const notCompletedHeader = document.querySelector('h3');
-                const dataUrl = this.getAttribute('data-url');
-                const todoId = this.getAttribute('data-id');
-                const redirectUrl = this.getAttribute('data-redirect');
-
-                fetch(dataUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-
-                    body: `redirect=${encodeURIComponent(redirectUrl)}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        const todoElement = document.getElementById(`todo-${todoId}`);
-                        if (!currentUrl.includes('details'));
-                        notCompletedHeader.textContent = `You have ${data.not_completed} ${pluralizeTask(data.not_completed)} to do!`
-                        if (todoElement) {
-                            todoElement.remove();
-                            
-                        }
-                    } else if (data.status === 'redirect'){
-                        window.location.href = data.url;
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            });
-    });
+        button => addDeleteBtnEvent(button));
 
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {

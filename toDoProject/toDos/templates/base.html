@@ -10,9 +10,9 @@
 </head>
 </head>
 <body>
+    <div id="auth-status" data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"></div>
     <h1>To Do List!</h1>
     {% if user.is_authenticated %}
-    <script> document.cookie = "username={{ user.username }}; path=/; max-age=3600";</script>
     <h2>Welcome {{ user.username }}!</h2>
     {% endif %}
     <nav>

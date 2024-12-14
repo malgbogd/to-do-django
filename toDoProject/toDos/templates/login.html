@@ -11,6 +11,11 @@ All yours To Dos!
         {{ error_message }}
     </div>
 {% endif %}
+{% if message %}
+<div class="error-message">
+    {{ message }}
+</div>
+{% endif %}
 <form action = "{% url 'users' %}" method="post">
     {% csrf_token %}
     <label for="username">Username</label>
