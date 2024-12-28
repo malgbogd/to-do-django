@@ -1,15 +1,25 @@
 const currentUrl = window.location.pathname;
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
+
+function smoothScrollTo(container){
+    const position = container.getBoundingClientRect().top + window.scrollY
+    window.scrollTo({
+        top: position,
+        behavior: 'smooth'
+    });
+}
 
 function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
     button.addEventListener('click', function(e) {
         e.preventDefault()
     const subtaskId = this.getAttribute("data-id");
+    const dataUrl = this.getAttribute("data-url");
 
-    fetch(`/subtask/delete/${subtaskId}`, {
+    fetch(dataUrl, {
         method: 'POST',
         headers: {
             'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
         }
     })
     .then(response => response.json())
@@ -19,9 +29,7 @@ function addSubtaskDeleteEvent(button, subtaskList, subtaskContainer){
         
         if (subtaskList.children.length===0){
             subtaskContainer.hidden = true;
-        }
-
-        }
+        }}
     })
     .catch(error => console.log("Error:", error));
     });
@@ -32,9 +40,9 @@ function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer)
         e.preventDefault();
 
         const formData = new FormData(addSubtaskForm);
-        const url = addSubtaskForm.getAttribute('data-url');
+        const dataUrl = addSubtaskForm.getAttribute('data-url');
 
-        fetch(url, {
+        fetch(dataUrl, {
             method: "POST",
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -50,8 +58,8 @@ function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer)
                     <div class = "to-do-nav">
                         <h4>${subtask.title}</h4>
                         <div class = "to-do-nav">
-                        <button class = "edit-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/todo/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
-                        <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}"><i class="fas fa-trash"></i></button>
+                        <button class = "edit-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/subtask/edit/${subtask.to_do}/"><i class="fas fa-edit"></i></button>
+                        <button class = "delete-subtask-btn small-subtask-button" data-id = "${subtask.id}" data-url = "/subtask/delete/${subtask.id}/"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                     <p>${subtask.text}</p>
@@ -89,9 +97,9 @@ function addSubmitAddSubtaskEvent(addSubtaskForm, subtaskList, subtaskContainer)
 
 function addSubtaskCheckboxEvent(checkbox){
     checkbox.addEventListener('change', function() {
-        const subtaskId = this.getAttribute('data-id');
+        const dataUrl = this.getAttribute('data-url');
     
-        fetch(`/subtask/toggle/${subtaskId}`, 
+        fetch(dataUrl, 
             {
                 method : 'post',
                 headers : {
@@ -113,16 +121,13 @@ function addEditSubtaskEvent(button){
     button.addEventListener('click', function(e) {
     e.preventDefault();             
     const formContainer =document.getElementById('form-container');
-    const formPosition = formContainer.getBoundingClientRect().top + window.scrollY;
     const addSubtaskHTML = formContainer.innerHTML;
     const subtaskId = this.getAttribute("data-id");
     const subtaskContainer = document.getElementById(`subtask-${subtaskId}`)
-    const subtaskPosition = subtaskContainer.getBoundingClientRect().top + window.scrollY;
     const subtaskTitle = subtaskContainer.querySelector('h4');
     const subtaskText = subtaskContainer.querySelector('p');
     const subtaskTitleContent = subtaskTitle?.textContent || "";
     const subtaskTextContent = subtaskText?.textContent || "";
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || getCookie('csrftoken');
     const subtaskCompletionContainer = subtaskContainer.querySelector('input[type="checkbox"]');
     const subtaskCompletion = subtaskCompletionContainer?.checked || false;
     const addSubtaskForm = document.getElementById("subtask-form");
@@ -132,7 +137,7 @@ function addEditSubtaskEvent(button){
 
     const editSubtaskHtml = `
     <h2 id="form">Edit subtask:</h2>
-    <form data-url="/subtask/update/${subtaskId}" method="post" id="saveEditedSubtaskForm">
+    <form data-url="/subtask/update/${subtaskId}/" method="post" id="saveEditedSubtaskForm">
         <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
         <label for="title">Title:</label>
         <input type="text" id="title" name="title" placeholder="Title" value = "${subtaskTitleContent}" required>
@@ -144,12 +149,10 @@ function addEditSubtaskEvent(button){
         <label for = "completed">Completed</label>
         </div>
         <br>
-        <button type = 'submit' data-url="/subtask/update/${subtaskId}" >Save</button>
+        <button type = 'submit' data-url="/subtask/update/${subtaskId}/" >Save</button>
     </form>`
-    window.scrollTo({
-        top: formPosition,
-        behavior: 'smooth'
-    });
+    smoothScrollTo(formContainer)
+    
     formContainer.innerHTML = '';
     formContainer.innerHTML = editSubtaskHtml;
     const saveEditedSubtaskForm = formContainer.querySelector("form")
@@ -188,10 +191,7 @@ function addEditSubtaskEvent(button){
                 subtaskCompletionContainer.checked = subtask.completion;
                 subtaskCompletionContainer.disabled = subtask.completion;
 
-                window.scrollTo({
-                    top: subtaskPosition,
-                    behavior: 'smooth'
-                });
+                smoothScrollTo(subtaskContainer)
 
                 const deleteButton = document.querySelector(`#subtask-${subtask.id} .delete-subtask-btn`);
                 const editButton = document.querySelector(`#subtask-${subtask.id} .edit-subtask-btn`);
@@ -206,7 +206,8 @@ function addEditSubtaskEvent(button){
         .catch(error => console.log('Error:', error));
 
     });
-});}
+});
+}
 
 function pluralizeTask(count) {
     return count === 1 ? 'task' : 'tasks';
@@ -248,7 +249,6 @@ function createModal(imgUrl) {
 }
 
 function saveReward(data){
-    console.log(data)
     fetch('/give-reward/', {
         method : "POST",
         headers : {
@@ -264,7 +264,16 @@ function saveReward(data){
     .catch(error => console.log("Error:", error));
 }
 
+function isUserAuthenticated() {
+        const authElement = document.getElementById("auth-status");
+        const isAuthenticated = authElement.dataset.authenticated === "true";
+        return isAuthenticated
+    }
+
 function giveReward(){
+
+    if (isUserAuthenticated()) {
+
         fetch('https://api.thecatapi.com/v1/images/search')
         .then(response => response.json())
         .then(data =>{
@@ -273,14 +282,15 @@ function giveReward(){
             createModal(imgUrl);
         })
         .catch(error=>console.log("Error:", error));
-    }
+    }   
+}
 
-function addDeleteTodoBtnEvent(button){
+function addDeleteBtnEvent(button){
     button.addEventListener('click', function () {
-        const todoId = this.getAttribute('data-id');
+        const notCompletedHeader = document.querySelector('h3');
         const dataUrl = this.getAttribute('data-url');
+        const todoId = this.getAttribute('data-id');
         const redirectUrl = this.getAttribute('data-redirect');
-        console.log(dataUrl)
 
         fetch(dataUrl, {
             method: 'POST',
@@ -295,9 +305,11 @@ function addDeleteTodoBtnEvent(button){
         .then(data => {
             if (data.status === 'success') {
                 const todoElement = document.getElementById(`todo-${todoId}`);
-
+                if (!currentUrl.includes('details'));
+                notCompletedHeader.textContent = `You have ${data.not_completed} ${pluralizeTask(data.not_completed)} to do!`
                 if (todoElement) {
                     todoElement.remove();
+                    
                 }
             } else if (data.status === 'redirect'){
                 window.location.href = data.url;
@@ -305,7 +317,7 @@ function addDeleteTodoBtnEvent(button){
         })
         .catch(error => console.error('Error:', error));
     });
-};
+}
 
 document.addEventListener('DOMContentLoaded', function () {  
 
@@ -314,35 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const subtaskContainer = document.getElementById("subtasks-container");
     
     document.querySelectorAll('.delete-button').forEach(
-        button => { addDeleteTodoBtnEvent(button);
-            // button.addEventListener('click', function () {
-            //     const todoId = this.getAttribute('data-id');
-            //     const redirectUrl = this.getAttribute('data-redirect');
-
-            //     fetch(`/todo/delete/${todoId}/`, {
-            //         method: 'POST',
-            //         headers: {
-            //             'X-CSRFToken' :document.querySelector('[name=csrfmiddlewaretoken]').value,
-            //             'Content-Type': 'application/x-www-form-urlencoded',
-            //         },
-
-            //         body: `redirect=${encodeURIComponent(redirectUrl)}`
-            //     })
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         if (data.status === 'success') {
-            //             const todoElement = document.getElementById(`todo-${todoId}`);
-
-            //             if (todoElement) {
-            //                 todoElement.remove();
-            //             }
-            //         } else if (data.status === 'redirect'){
-            //             window.location.href = data.url;
-            //         }
-            //     })
-            //     .catch(error => console.error('Error:', error));
-            // });
-    });
+        button => addDeleteBtnEvent(button));
 
     document.querySelectorAll('.edit-button').forEach(button => {
         button.addEventListener('click', function() {
@@ -355,10 +339,11 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.todo-comletion').forEach(checkbox => {
         checkbox.addEventListener('change', function () {
             const todoId = this.getAttribute('data-id');
+            const dataUrl = this.getAttribute('data-url');
             const completionTime = document.getElementById(`completion-date-${todoId}`);
             const notCompletedHeader = document.querySelector('h3');
 
-            fetch(`/todo/toggle/${todoId}/`, {
+            fetch(dataUrl, {
                 method : 'post',
                 headers : {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -409,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function () {
         button => { addEditSubtaskEvent(button)
         });
 
-        subtaskContainer.querySelectorAll('input[type="checkbox"]').forEach( checkbox => { addSubtaskCheckboxEvent(checkbox) });
+        subtaskContainer.querySelectorAll('input[type="checkbox"]').forEach( checkbox => { addSubtaskCheckboxEvent(checkbox)});
     };
 
     

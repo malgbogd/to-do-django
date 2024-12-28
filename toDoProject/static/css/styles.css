@@ -204,6 +204,24 @@ img{
     flex-direction:row;
 }
 
+.image-edit-div {
+    width: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.image-edit-div label {
+    white-space: nowrap;
+    margin: 0;
+}
+
+.image-edit-div input[type="checkbox"] {
+    margin: 0;
+    width: auto;
+    line-height: 1;
+}
+
 .completed-div input {
     width: auto;
     line-height: 1;

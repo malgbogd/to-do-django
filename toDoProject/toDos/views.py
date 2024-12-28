@@ -49,6 +49,10 @@ def save_edited_todo(request, todo_id):
     to_do.title = request.POST.get('title')
     to_do.text = request.POST.get('text')
 
+    if 'remove_image' in request.POST and 'image' not in request.FILES:
+        to_do.image.delete(save=False)
+        to_do.image = None
+
     if 'image' in request.FILES:
         to_do.image=request.FILES.get('image')
 

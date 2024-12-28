@@ -1,7 +1,7 @@
 {% extends 'base.html'%}
 
 {% block title%}
-Create Your To Dos!
+Edit Your To Do!
 {% endblock title%}
 
 {% block content %}
@@ -21,8 +21,21 @@ Create Your To Dos!
         <textarea id="text" name="text" rows="4" placeholder="Description" required>{{todo.text}}</textarea>
 
         <label for="image">Image:</label>
+        {% if todo.image %}
+            <div class="image-edit-div">
+                <h5>Current image:</h5>
+                <img src = "{{todo.image.url}}" alt ="Current image" style = "max-width: 100px; max-height: 100px;">
+                <div class="image-edit-div">
+                    <label for="remove_image">Remove current image:</label>
+                    <input type="checkbox" id="remove_image" name = "remove_image">    
+                </div>
+                
+            </div>
+        {% endif %}
         <input type="file" id="image" name="image" accept="image/*">
+        <p>New image will replace the old one</p>
         <button type = 'submit'>Save changes</button>
+
 
 </form>
 
